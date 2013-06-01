@@ -72,6 +72,24 @@ randomDirectionDegrees = function(speed, inc)
 
 end
 --------
+rotateOnCircle = function(object, center, increments, speed, degree, radius)
+
+	degree = degree + speed
+	local rads    = degree * (math.pi / 180.0)
+
+	if degree > 360 then
+		degree = degree -360
+	elseif degree < 0 then
+		degree = 360 - degree
+	end
+
+	object.x = center[1] + (radius/2 * math.cos(rads))
+	object.y = center[2] + (radius/2 * math.sin(rads))
+
+	return degree
+
+end
+--------
 spawn = function(params)
 
 	-- object references
