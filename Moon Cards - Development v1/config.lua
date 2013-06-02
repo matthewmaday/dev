@@ -1,17 +1,120 @@
-application =
-{
+if string.sub(system.getInfo("model"),1,4) == "iPad" then
+    application = 
+    {
         content =
         {
-                width = 300,
-                height = 480,
-                scale = "letterbox",
-                
-                imageSuffix =
-                {
-                    ["@x15"] = 1.5,     -- A good scale for Droid, Nexus One, etc.
-                    ["@x2"] = 2,        -- A good scale for iPhone 4 and iPad
-                    ["@x4"] = 4,        -- A good scale for iPhone 4 and iPad
-                },
+            width = 360,
+            height = 480,
+            scale = "letterBox",
+            xAlign = "center",
+            yAlign = "center",
+            imageSuffix = 
+            {
+                ["@x2"] = 1.5,
+                ["@x4"] = 3.0,
+            },
         },
+        notification = 
+        {
+            iphone = {
+                types = {
+                    "badge", "sound", "alert"
+                }
+            }
+        }
+    }
 
-} 
+elseif string.sub(system.getInfo("model"),1,2) == "iP" and display.pixelHeight > 960 then
+    application = 
+    {
+        content =
+        {
+            width = 320,
+            height = 568,
+            scale = "letterBox",
+            xAlign = "center",
+            yAlign = "center",
+            imageSuffix = 
+            {
+                ["@x2"] = 1.5,
+                ["@x4"] = 3.0,
+            },
+        },
+        notification = 
+        {
+            iphone = {
+                types = {
+                    "badge", "sound", "alert"
+                }
+            }
+        }
+    }
+
+elseif string.sub(system.getInfo("model"),1,2) == "iP" then
+    application = 
+    {
+        content =
+        {
+            width = 320,
+            height = 480,
+            scale = "letterBox",
+            xAlign = "center",
+            yAlign = "center",
+            imageSuffix = 
+            {
+                ["@x2"] = 1.5,
+                ["@x4"] = 3.0,
+            },
+        },
+        notification = 
+        {
+            iphone = {
+                types = {
+                    "badge", "sound", "alert"
+                }
+            }
+        }
+    }
+elseif display.pixelHeight / display.pixelWidth > 1.72 then
+    application = 
+    {
+        content =
+        {
+            width = 320,
+            height = 570,
+            scale = "letterBox",
+            xAlign = "center",
+            yAlign = "center",
+            imageSuffix = 
+            {
+                ["@x2"] = 1.5,
+                ["@x4"] = 3.0,
+            },
+        },
+    }
+else
+    application = 
+    {
+        content =
+        {
+            width = 320,
+            height = 512,
+            scale = "letterBox",
+            xAlign = "center",
+            yAlign = "center",
+            imageSuffix = 
+            {
+                ["@x2"] = 1.5,
+                ["@x4"] = 3.0,
+            },
+        },
+        notification = 
+        {
+            iphone = {
+                types = {
+                    "badge", "sound", "alert"
+                }
+            }
+        }
+    }
+end

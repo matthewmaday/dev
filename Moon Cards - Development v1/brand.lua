@@ -1,4 +1,6 @@
-
+--------------------------------------------------------------------------------------
+-- Common use brand identity scene
+--------------------------------------------------------------------------------------
 
 --------------------------------------------------------------------------------------
 -- External Libraries
@@ -7,35 +9,67 @@
 local storyboard = require ("storyboard")
 local scene      = storyboard.newScene()
 local uiObj      = require ("classes.ui")
-screenGroup      = nil
-logoGroup        = display.newGroup()
-gCollector       = {}
-gStar            = {150,nil,2}
-gTimer           = nil
-gOrientation     = system.orientation
+
+
+--------------------------------------------------------------------------------------
+-- local variable declaritions
+--------------------------------------------------------------------------------------
+
+screenGroup      = nil				-- the group that holds all of the graphics
+local logoGroup        = display.newGroup() -- a group 
+local gCollector       = {}
+local gStar            = {150,nil,2}
+local gTimer           = nil
+local gOrientation     = system.orientation
+local screenGroupOffset = {-100,-60}
 
 --------------------------------------------------------------------------------------
 -- functions
 --------------------------------------------------------------------------------------
 
+-- onOrientationChange( event )
 -- touchScreen(event)
--- initBurst(event)
+-- rotateStar(event,object)
+-- initStar(event)
+
 
 local function onOrientationChange( event )
 
-	gOrientation     = system.orientation
+	if system.orientation == "portrait" or system.orientation == "portraitUpsideDown" then
+		print("reset in portrait")
 
-	-- -- rotate text so it remains upright
-	local newAngle = event.delta-screenGroup.rotation
-	transition.to( screenGroup, { time=150, rotation=newAngle } )
+		screenGroup.y = screenGroupOffset[2]
+		screenGroup.x = (display.contentWidth-screenGroup.width)*.5
+
+	else
+		print("reset in landscape")
+		screenGroup.x = (display.contentWidth-screenGroup.width)*.5
+		screenGroup.y = screenGroupOffset[2]
+	end
+
+-- screenGroup.x,screenGroup.y = screenGroupOffset[1],screenGroupOffset[2]
+
+--local delta = event.delta
+	-- if screenGroup.rotation == 0 and delta < 0 then
+	-- 	local newAngle = screenGroup.rotation-delta
+	-- else
+	-- 	local newAngle = screenGroup.rotation-delta
+	-- end
+
+-- 	gOrientation     = system.orientation
+
+-- 	-- -- rotate text so it remains upright
+-- 	local newAngle = screenGroup.rotation+delta
+
+-- 	if newAngle == 0 then
+-- 		newAngle = 360
+-- 	end
+-- print(event.delta)
+-- 	screenGroup.rotation = newAngle
+
+	-- transition.to( screenGroup, { time=150, rotation=newAngle } )
 end
 
-Runtime:addEventListener( "orientation", onOrientationChange )
-
-
-
- 
- 
 
 
 local function touchScreen(event)
@@ -47,7 +81,8 @@ end
 --------
 local function rotateStar(event,object)
 
-	local center = {display.contentCenterX,display.contentCenterY}
+--print(gTimer)-- = timer.performWithDelay(2000, initStar,0 )
+	local center = {0,554}
 
 	gStar[1] = uiObj.rotateOnCircle(gStar[2], center,360, gStar[3], gStar[1], 300)
 	gStar[3] = gStar[3] - .029
@@ -58,21 +93,7 @@ local function rotateStar(event,object)
 	end
 
 end
---------
-local function initStar(event)
 
-    	-- star image
-	gStar[2] = display.newImageRect(logoGroup, "images/logo_star.png", 14,12)
-	gStar[2]:setReferencePoint(display.BottomCenterReferencePoint)
-	gStar[2].x,gStar[2].y 	  = display.contentCenterX,display.contentCenterY+70
-	gStar[2].alpha = 0.0
-
-	Runtime:addEventListener("enterFrame", rotateStar)
-
-	timer.cancel(gTimer)
-	gTimer = nil
-
-end
 --------------------------------------------------------------------------------------
 -- INIT storyboard scene
 --------------------------------------------------------------------------------------
@@ -85,13 +106,12 @@ end
 function scene:createScene(event)
 
 	screenGroup = self.view
-	screenGroup.width, screenGroup.height = 480,480
-
+	screenGroup.width,screenGroup.height = 698,display.contentHeight
 
 	-- background rect that fades in
-	local img = display.newRect(logoGroup, 0,0,display.contentWidth*1.5,display.contentCenterY*1.4)
-	img:setReferencePoint( display.BottomCenterReferencePoint )
-	img.x,img.y     = display.contentCenterX,display.contentCenterY+60
+	local img = display.newRect(screenGroup, 0,0,698,display.contentCenterY*1.4)
+	img:setReferencePoint( display.TopCenterReferencePoint )
+	img.x,img.y     = 0,display.contentCenterY+60
 	img:setFillColor(255,255,255)
 	img.alpha = 0.0
 
@@ -100,77 +120,81 @@ function scene:createScene(event)
 	transition.to( img, { time=4000, delay=0, alpha=1.0} )
 
 	-- burst image
-	local img = display.newImageRect(logoGroup, "images/logo_burst.png", 698,373)
-	img:setReferencePoint(display.BottomCenterReferencePoint)
-	img.x,img.y 	  = display.contentCenterX,display.contentCenterY+70
-	img.alpha = 0.0
+	gCollector[#gCollector+1] = uiObj.insertImage({group=screenGroup,objTable=gCollector,image="images/logo_burst.png",
+	name="burst",width=698,height=373,x=0,y=455,alpha=0.0,
+	reference=display.BottomCenterReferencePoint})
 
-	gCollector[#gCollector+1] = img
-
-	transition.to( img, { time=2000, delay=2000, alpha=.5, } )
+	transition.to( gCollector[#gCollector], { time=2000, delay=2000, alpha=.5, } )
 
 	-- logo image
-	local img = display.newImageRect(logoGroup, "images/logo.png", 132,125)
-	img:setReferencePoint(display.CenterReferencePoint)
-	img.x 	  = display.contentCenterX+30
-	img.y 	  = display.contentCenterY
+	gCollector[#gCollector+1] = uiObj.insertImage({group=screenGroup,objTable=gCollector,image="images/logo.png",
+	name="logo",width=132,height=125,x=30,y=575,alpha=1.0,
+	reference=display.BottomCenterReferencePoint})
 
-	gCollector[#gCollector+1] = img
-	transition.to( img, { x= display.contentCenterX,time=7000, delay=0, alpha=1.0, transition=easing.outQuad} )
+	transition.to( gCollector[#gCollector], { x= 0,time=7000, delay=0, alpha=1.0, transition=easing.outQuad} )
 
 	-- title image
-	local img = display.newImageRect(logoGroup, "images/logo_title.png", 202,10)
-	img:setReferencePoint(display.CenterReferencePoint)
-	img.x,img.y 	  = display.contentCenterX,display.contentCenterY+80
-	img.alpha = 0.0
+	gCollector[#gCollector+1] = uiObj.insertImage({group=screenGroup,objTable=gCollector,image="images/logo_title.png",
+	name="title",width=202,height=10,x=0,y=660,alpha=0.0,
+	reference=display.TopCenterReferencePoint})
 
-	gCollector[#gCollector+1] = img
+	transition.to( gCollector[#gCollector], { y= 650,time=1000, delay=2000, alpha=1.0, transition=easing.inQuad} )
 
-	transition.to( img, { y= display.contentCenterY+75,time=1000, delay=2000, alpha=1.0, transition=easing.inQuad} )
-	
-	gTimer = timer.performWithDelay(2000, initStar,0 )
+	-- star image
+	gStar[2] = uiObj.insertImage({group=screenGroup,objTable=gCollector,image="images/logo_star.png",
+	name="star",width=14,height=12,x=-30,y=300,alpha=0.0,
+	reference=display.TopCenterReferencePoint})
 
-	screenGroup:insert(logoGroup)
-	screenGroup:setReferencePoint( display.CenterReferencePoint )
-	print(screenGroup.x)
+	Runtime:addEventListener("enterFrame", rotateStar)
+	screenGroup:setReferencePoint( display.TopLeftReferencePoint )
+
+	return screenGroup
+
 end      
 --------
 function scene:enterScene(event)
+
 	Runtime:addEventListener("touch",touchScreen)
+	screenGroup.y = screenGroupOffset[2]
+	screenGroup.x = (display.contentWidth-screenGroup.width)*.5
+
 end
 --------
 function scene:exitScene(event)
 	
-	
-
 	-- remove listener events
 	Runtime:removeEventListener("touch",touchScreen)
 	scene:removeEventListener("createScene", scene)
 	scene:removeEventListener("enterScene", scene)
 	scene:removeEventListener("exitScene", scene)
 	scene:removeEventListener("destroyScene", scene)
+	Runtime:removeEventListener( "orientation", onOrientationChange )
+	Runtime:removeEventListener("enterFrame", rotateStar)
 
 	-- clean up globals
-	screenGroup:removeSelf()
-	screenGroup = nil
 
-	for i=1,#gCollector, 1 do
-		gCollector[i]:removeSelf()
-		gCollector[i] = nil
-	end
-	if gStar[2] ~= nil then
-		gStar[2]:removeSelf()
-		gStar[2] = nil
+		if gStar[2] ~= nil then
+		--gStar[2]:removeSelf()
+		--gStar[2] = nil
 		gStar = nil
 	end
 
-	
-	gCollector = nil
-	logoGroup  = nil
-	if gTimer ~= nil then
-		timer.cancel(gTimer)
-		gTimer = nil
-	end
+
+	screenGroup:removeSelf()
+	screenGroup = nil
+
+	-- for i=1,#gCollector, 1 do
+	-- 	gCollector[i]:removeSelf()
+	-- 	gCollector[i] = nil
+	-- end
+
+
+	-- gCollector = nil
+	-- logoGroup  = nil
+	-- if gTimer ~= nil then
+	-- 	timer.cancel(gTimer)
+	-- 	gTimer = nil
+	-- end
 end
 --------
 function scene:destroyScene(event)
@@ -181,10 +205,15 @@ end
 -- scene execution
 --------------------------------------------------------------------------------------
 
+
+
+Runtime:addEventListener( "orientation", onOrientationChange )
 scene:addEventListener("createScene", scene)
 scene:addEventListener("enterScene", scene)
 scene:addEventListener("exitScene", scene)
 scene:addEventListener("destroyScene", scene)
+
+
 
 return scene
 

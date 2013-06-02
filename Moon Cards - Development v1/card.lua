@@ -24,6 +24,7 @@ display.setStatusBar( display.HiddenStatusBar )
 	require "display"
 
 
+
 -----------------------------------------------------------------------------------------
 -- Global Variables 
 -----------------------------------------------------------------------------------------
@@ -35,6 +36,7 @@ display.setStatusBar( display.HiddenStatusBar )
 	gMomentum         = {0,0}
 	gCardGroup        = display.newGroup()
 	gState            = "home" -- home, card, about
+
 
 
 
@@ -92,7 +94,7 @@ local function initScroll()
 	{
 		left           = 0,
 		top            = display.contentHeight*.15,
-		width          = 272, 
+		width          = 300, 
 		height         = display.contentHeight-200,   -- controls the where the text considers 'bottom'
 		bottomPadding  = 140,
 		hideBackground = true,

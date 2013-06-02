@@ -12,19 +12,6 @@ module(..., package.seeall)
 -- Functions Libraries 
 -----------------------------------------------------------------------------------------
 
-insertImage = function(pGroup,pFile,pName,x,y,pRef,pAlpha)
-   
-   -- define the path - remember to include the folder in the path if not on base level
-	local pImage     = display.newImage(pFile)
-	pImage.name      = pName
-	pImage.x         = x
-	pImage.y         = y
-	pImage:setReferencePoint(pRef)
-
-	pGroup:insert(pImage)
-
-   return pGroup  
-end
 --------
 insertText = function(pGroup,pText,pName,pFont,pFontSize,x,y,pWidth,pColor,pRef)
 
@@ -87,6 +74,28 @@ rotateOnCircle = function(object, center, increments, speed, degree, radius)
 	object.y = center[2] + (radius/2 * math.sin(rads))
 
 	return degree
+
+end
+--------
+insertImage = function(params)
+
+	-- group=,objTable,image=,name=,width=,height=,x=,y=,alpha=,reference=
+	object 			= display.newImageRect(params.image, params.width, params.height)   
+	object.objTable = params.objTable
+	object.index    = #object.objTable + 1
+	object.myName   = params.name
+	object.group    = params.group
+	object.group:insert(object)
+	object.objTable[object.index] = object
+
+	
+	object.x 		  = params.x
+	object.y 		  = params.y
+	object.alpha  	  = params.alpha or 1
+
+	object:setReferencePoint(params.reference)
+
+	return object
 
 end
 --------
