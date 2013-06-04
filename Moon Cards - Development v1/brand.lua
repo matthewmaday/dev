@@ -49,12 +49,13 @@ local function onOrientationChange( event )
 
 -- screenGroup.x,screenGroup.y = screenGroupOffset[1],screenGroupOffset[2]
 
---local delta = event.delta
-	-- if screenGroup.rotation == 0 and delta < 0 then
-	-- 	local newAngle = screenGroup.rotation-delta
-	-- else
-	-- 	local newAngle = screenGroup.rotation-delta
-	-- end
+print(event.delta)
+ local delta = event.delta
+	if screenGroup.rotation == 0 and delta < 0 then
+		local newAngle = screenGroup.rotation-delta
+	else
+		local newAngle = screenGroup.rotation-delta
+	end
 
 -- 	gOrientation     = system.orientation
 
@@ -65,9 +66,9 @@ local function onOrientationChange( event )
 -- 		newAngle = 360
 -- 	end
 -- print(event.delta)
--- 	screenGroup.rotation = newAngle
+-- screenGroup.rotation = newAngle
 
-	-- transition.to( screenGroup, { time=150, rotation=newAngle } )
+	transition.to( screenGroup, { time=150, rotation=newAngle } )
 end
 
 
