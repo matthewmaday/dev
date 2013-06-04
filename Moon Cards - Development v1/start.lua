@@ -16,9 +16,9 @@ physics.setGravity(0,0 )
 -- local variable declaritions
 --------------------------------------------------------------------------------------
 
-screenGroup      = nil
-spawnTable       = {}
-local gCollector       = {}
+screenGroup         = nil
+spawnTable          = {}
+local gCollector    = {}
 
 local myHeight, myWidth = display.contentHeight, display.contentWidth
 local myCenterX, myCenterY = myWidth*.5, myHeight*.5
@@ -38,8 +38,11 @@ local function onOrientationChange( event )
 		local newAngle = delta-screenGroup.rotation
 	end
 
-	screenGroup.x,screenGroup.y = (display.contentWidth-myWidth)*.5,0
+	screenGroup.x,screenGroup.y = (display.contentWidth-myWidth)*.5,(display.contentHeight-myHeight)*.5
 	transition.to( screenGroup, { time=150, rotation=newAngle } )
+
+	gCollector.title.y = display.contentHeight*.2
+
 end
 --------
 function constructScene()
@@ -97,27 +100,29 @@ function constructScene()
 	end
 
 	-- center moon
-	gCollector[#gCollector+1] = uiObj.insertImage({group=screenGroup,objTable=gCollector,image="images/home_sunmoon.png",
-	name="sun",width=104,height=107,x=myCenterX,y=myCenterY,alpha=0.0,
-	reference=display.CenterReferencePoint})
 
-   	transition.to( gCollector[#gCollector], { time=2000, delay=100, alpha=1.0, } )
+	gCollector[#gCollector+1] = {sun=nil}
+	gCollector.sun=(uiObj.insertImage({group=screenGroup,objTable=gCollector,image="images/home_sunmoon.png",
+	name="sun",width=104,height=107,x=myCenterX,y=myCenterY,alpha=0.0,
+	reference=display.CenterReferencePoint}))
+
+   	transition.to( gCollector.sun, { time=2000, delay=100, alpha=1.0, } )
 
    	-- title
-	gCollector[#gCollector+1] = uiObj.insertImage({group=screenGroup,objTable=gCollector,image="images/home_title.png",
+   	gCollector[#gCollector+1] = {title=nil}
+	gCollector.title = uiObj.insertImage({group=screenGroup,objTable=gCollector,image="images/home_title.png",
 	name="title",width=289,height=49,x=myCenterX,y=myHeight*.1,alpha=0.0,
 	reference=display.CenterReferencePoint})
 
 	transition.to( gCollector[#gCollector], { time=2000, delay=0, alpha=1.0, } )
 
 	-- continue button
-	gCollector[#gCollector+1] = uiObj.insertImage({group=screenGroup,objTable=gCollector,image="images/home_begin.png",
+	gCollector[#gCollector+1] = {continue=nil}
+	gCollector.continue = uiObj.insertImage({group=screenGroup,objTable=gCollector,image="images/home_begin.png",
 	name="begin",width=104,height=37,x=myCenterX,y=myHeight*.9,alpha=0.0,
 	reference=display.CenterReferencePoint})
 
-	transition.to( gCollector[#gCollector], { time=2000, delay=0, alpha=1.0, } )
-
-
+	transition.to( gCollector.continue, { time=2000, delay=0, alpha=1.0, } )
 
 end
 
@@ -125,6 +130,30 @@ end
 --------------------------------------------------------------------------------------
 -- INIT storyboard scene
 --------------------------------------------------------------------------------------
+
+
+--------
+local function rotate()
+
+	burst.rotation = (burst.rotation > 360) and 0 or (burst.rotation + .1)
+end
+
+
+--------------------------------------------------------------------------------------
+-- functions
+--------------------------------------------------------------------------------------
+
+function touchScreen(event)
+	if event.phase == "began" then
+		storyboard.gotoScene( "card", "fade", 400 )
+	elseif event.phase == "ended" then
+	end
+end
+
+--------------------------------------------------------------------------------------
+-- INIT storyboard scene
+--------------------------------------------------------------------------------------
+
 
 function scene:createScene(event)
 
@@ -149,35 +178,13 @@ function scene:createScene(event)
 
 end
 --------
-local function rotate()
-
-	burst.rotation = (burst.rotation > 360) and 0 or (burst.rotation + .1)
-end
-
-
---------------------------------------------------------------------------------------
--- functions
---------------------------------------------------------------------------------------
-
-function touchScreen(event)
-	if event.phase == "began" then
-		storyboard.gotoScene( "card", "fade", 400 )
-	elseif event.phase == "ended" then
-	end
-end
-
---------------------------------------------------------------------------------------
--- INIT storyboard scene
---------------------------------------------------------------------------------------
-
-
-
 function scene:enterScene(event)
 
 	Runtime:addEventListener("enterFrame",rotate)
 	Runtime:addEventListener("touch",touchScreen)
 	screenGroup:setReferencePoint( display.TopLeftReferencePoint )
-	screenGroup.x,screenGroup.y = (display.contentWidth-myWidth)*.5,0
+	screenGroup.x,screenGroup.y = (display.contentWidth-myWidth)*.5,(display.contentHeight-myHeight)*.5
+
 
 	constructScene()
 
