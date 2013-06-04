@@ -23,6 +23,10 @@ local gTimer           = nil
 local gOrientation     = system.orientation
 local screenGroupOffset = {-100,-60}
 
+local myHeight, myWidth = display.contentHeight, display.contentWidth
+local myCenterX, myCenterY = myWidth*.5, myHeight*.5
+
+
 --------------------------------------------------------------------------------------
 -- functions
 --------------------------------------------------------------------------------------
@@ -32,29 +36,43 @@ local screenGroupOffset = {-100,-60}
 -- rotateStar(event,object)
 -- initStar(event)
 
+local function resetWidthHeight()
 
+if myWidth > myHeight then
+	local w = myWidth
+	myWidth = myHeight
+	myHeight = w
+end
+
+   myCenterX, myCenterY = myWidth*.5, myHeight*.5
+
+end
+--------
 local function onOrientationChange( event )
 
 	if system.orientation == "portrait" or system.orientation == "portraitUpsideDown" then
 		print("reset in portrait")
 
+		myWidth,myHeight  = display.contentWidth, display.contentHeight
+		myCenterX, myCenterY = myWidth*.5, myHeight*.5
+
 		screenGroup.y = screenGroupOffset[2]
-		screenGroup.x = (display.contentWidth-screenGroup.width)*.5
+		screenGroup.x = (myWidth-screenGroup.width)*.5
 
 	else
 		print("reset in landscape")
-		screenGroup.x = (display.contentWidth-screenGroup.width)*.5
+		screenGroup.x = (myWidth-screenGroup.width)*.5
 		screenGroup.y = screenGroupOffset[2]
 	end
 
 -- screenGroup.x,screenGroup.y = screenGroupOffset[1],screenGroupOffset[2]
 
-print(event.delta)
+print(event.delta-screenGroup.rotation)
  local delta = event.delta
 	if screenGroup.rotation == 0 and delta < 0 then
-		local newAngle = screenGroup.rotation-delta
+		local newAngle = delta-screenGroup.rotation
 	else
-		local newAngle = screenGroup.rotation-delta
+		local newAngle = delta-screenGroup.rotation
 	end
 
 -- 	gOrientation     = system.orientation
@@ -106,13 +124,15 @@ end
 
 function scene:createScene(event)
 
+	resetWidthHeight()
+
 	screenGroup = self.view
-	screenGroup.width,screenGroup.height = 698,display.contentHeight
+	screenGroup.width,screenGroup.height = 698,myHeight
 
 	-- background rect that fades in
-	local img = display.newRect(screenGroup, 0,0,698,display.contentCenterY*1.4)
+	local img = display.newRect(screenGroup, 0,0,698,myCenterY*1.4)
 	img:setReferencePoint( display.TopCenterReferencePoint )
-	img.x,img.y     = 0,display.contentCenterY+60
+	img.x,img.y     = 0,myCenterY+60
 	img:setFillColor(255,255,255)
 	img.alpha = 0.0
 
@@ -157,7 +177,7 @@ function scene:enterScene(event)
 
 	Runtime:addEventListener("touch",touchScreen)
 	screenGroup.y = screenGroupOffset[2]
-	screenGroup.x = (display.contentWidth-screenGroup.width)*.5
+	screenGroup.x = (myWidth-screenGroup.width)*.5
 
 end
 --------
