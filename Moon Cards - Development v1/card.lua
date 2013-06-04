@@ -37,7 +37,8 @@ display.setStatusBar( display.HiddenStatusBar )
 	gCardGroup        = display.newGroup()
 	gState            = "home" -- home, card, about
 
-
+local myHeight, myWidth = display.contentHeight, display.contentWidth
+local myCenterX, myCenterY = myWidth*.5, myHeight*.5
 
 
 -----------------------------------------------------------------------------------------
@@ -146,11 +147,10 @@ end
 --------
 local function initScreen()
   
-  	-- background
-	local img   = display.newImageRect(gCardGroup, "images/home_bkg.png", 360, 300)
-	img:setReferencePoint( display.CenterReferencePoint )
-	img.x = display.contentCenterX
-	img.y = display.contentHeight-88
+  	local img = display.newRect(gCardGroup, 0,myCenterY,myWidth,myHeight*.5)
+	img:setReferencePoint( display.TopLeftReferencePoint )
+	img.x,img.y     = 0,myCenterY
+	img:setFillColor(32,98,117)
 
 	-- burst animation
 	burst       = display.newImageRect(gCardGroup, "images/home_burst.png", 600, 600)

@@ -6,33 +6,64 @@
 
 local storyboard = require ("storyboard")
 local scene      = storyboard.newScene()
-local easingx    = require("classes.easing")  -- cool library i found- important easing"x"
 local physics    = require "physics"
 local uiObj      = require ("classes.ui")
 
 physics.start()
 physics.setGravity(0,0 )
 
-screenGroup      = ""
+--------------------------------------------------------------------------------------
+-- local variable declaritions
+--------------------------------------------------------------------------------------
+
+screenGroup      = nil
 spawnTable       = {}
+local gCollector       = {}
+
+local myHeight, myWidth = display.contentHeight, display.contentWidth
+local myCenterX, myCenterY = myWidth*.5, myHeight*.5
 
 --------------------------------------------------------------------------------------
--- INIT storyboard scene
+-- functions
 --------------------------------------------------------------------------------------
 
-function scene:createScene(event)
+local function onOrientationChange( event )
 
-	screenGroup = self.view
+	print("Change")
+ 	local delta = event.delta
+
+	if screenGroup.rotation == 0 and delta < 0 then
+		local newAngle = delta-screenGroup.rotation
+	else
+		local newAngle = delta-screenGroup.rotation
+	end
+
+	screenGroup.x,screenGroup.y = (display.contentWidth-myWidth)*.5,0
+	transition.to( screenGroup, { time=150, rotation=newAngle } )
+end
+--------
+function constructScene()
+
+	if myWidth > myHeight then
+		myHeight = myWidth
+	elseif myHeight > myWidth then
+		myWidth = myHeight
+	end
+
+	myCenterX, myCenterY = myWidth*.5, myHeight*.5
 
 	-- background
-	local img   = display.newImageRect(screenGroup, "images/home_bkg.png", 360, 300)
-	img:setReferencePoint( display.CenterReferencePoint )
-	img.x,img.y = display.contentCenterX, display.contentHeight-88
+	local img = display.newRect(screenGroup, 0,myCenterY,myWidth,myHeight*.5)
+	img:setReferencePoint( display.TopLeftReferencePoint )
+	img.x,img.y     = 0,myCenterY
+	img:setFillColor(32,98,117)
 
 	-- burst animation
 	burst             = display.newImageRect(screenGroup, "images/home_burst.png", 600, 600)
-	burst.x, burst.y  = display.contentCenterX,display.contentCenterY
+	burst.x, burst.y  = myCenterX,myCenterY
 	burst.speed = 1
+	burst.enterFrame = rotate
+	Runtime:addEventListener("enterFrame", burst)
 
 	for i=1,30 do
 
@@ -66,31 +97,61 @@ function scene:createScene(event)
 	end
 
 	-- center moon
-	local img = display.newImageRect(screenGroup, "images/home_sunmoon.png", 104, 107)
-	img:setReferencePoint( display.CenterReferencePoint )
-	img.x, img.y = display.contentCenterX, display.contentCenterY 
-	img.alpha    = 0
+	gCollector[#gCollector+1] = uiObj.insertImage({group=screenGroup,objTable=gCollector,image="images/home_sunmoon.png",
+	name="sun",width=104,height=107,x=myCenterX,y=myCenterY,alpha=0.0,
+	reference=display.CenterReferencePoint})
 
-	transition.to( img, { time=2000, delay=100, alpha=1.0, } )
+   	transition.to( gCollector[#gCollector], { time=2000, delay=100, alpha=1.0, } )
 
-	local img   = display.newImageRect(screenGroup, "images/home_title.png", 289, 49)
-	img.y,img.x = display.viewableContentHeight*.10,display.contentWidth*.5
-	
-	img.alpha   = 0
+   	-- title
+	gCollector[#gCollector+1] = uiObj.insertImage({group=screenGroup,objTable=gCollector,image="images/home_title.png",
+	name="title",width=289,height=49,x=myCenterX,y=myHeight*.1,alpha=0.0,
+	reference=display.CenterReferencePoint})
 
-	transition.to( img, { time=2000, delay=0, alpha=1.0, } )
+	transition.to( gCollector[#gCollector], { time=2000, delay=0, alpha=1.0, } )
 
-	local img   = display.newImageRect("images/home_begin.png", 104, 37)
-	img.y,img.x = display.contentHeight - (display.contentHeight*.07),display.contentWidth*.5
-	img.alpha   = 0
+	-- continue button
+	gCollector[#gCollector+1] = uiObj.insertImage({group=screenGroup,objTable=gCollector,image="images/home_begin.png",
+	name="begin",width=104,height=37,x=myCenterX,y=myHeight*.9,alpha=0.0,
+	reference=display.CenterReferencePoint})
 
-	transition.to( img, { time=1000, delay=1000, alpha=1.0, } )
-	screenGroup:insert(img)
+	transition.to( gCollector[#gCollector], { time=2000, delay=0, alpha=1.0, } )
+
+
+
+end
+
+
+--------------------------------------------------------------------------------------
+-- INIT storyboard scene
+--------------------------------------------------------------------------------------
+
+function scene:createScene(event)
+
+	if myWidth > myHeight then
+		myHeight = myWidth
+	elseif myHeight > myWidth then
+		myWidth = myHeight
+	end
+
+	myCenterX, myCenterY = myWidth*.5, myHeight*.5
+
+	screenGroup = self.view
+	screenGroup.width,screenGroup.height = myWidth,myHeight
+
+	-- create a blank background - important for orientation and predictable image placement
+	local img = display.newRect(screenGroup, 0,0,myWidth,myHeight)
+	img:setReferencePoint( display.TopLeftReferencePoint )
+	img.x,img.y     = 0,0
+	img:setFillColor(0,0,0)
+
+	return screenGroup
 
 end
 --------
-local function rotate(self)
-	self.rotation = (self.rotation > 360) and 0 or (self.rotation + .1)
+local function rotate()
+
+	burst.rotation = (burst.rotation > 360) and 0 or (burst.rotation + .1)
 end
 
 
@@ -112,9 +173,14 @@ end
 
 
 function scene:enterScene(event)
+
+	Runtime:addEventListener("enterFrame",rotate)
 	Runtime:addEventListener("touch",touchScreen)
-	burst.enterFrame = rotate
-	Runtime:addEventListener("enterFrame", burst)
+	screenGroup:setReferencePoint( display.TopLeftReferencePoint )
+	screenGroup.x,screenGroup.y = (display.contentWidth-myWidth)*.5,0
+
+	constructScene()
+
 end
 --------
 function scene:exitScene(event)
@@ -126,10 +192,12 @@ function scene:exitScene(event)
 	scene:removeEventListener("enterScene", scene)
 	scene:removeEventListener("exitScene", scene)
 	scene:removeEventListener("destroyScene", scene)
+	Runtime:removeEventListener( "orientation", onOrientationChange )
 
 	-- clean up globals
 
 	burst:removeSelf( )
+	burst = nil
 	--spawnTable:removeSelf( )
 	screenGroup:removeSelf()
 	screenGroup,burst, spawnTable = nil, nil, nil
@@ -140,6 +208,12 @@ function scene:destroyScene(event)
 
 end
 
+--------------------------------------------------------------------------------------
+-- scene execution
+--------------------------------------------------------------------------------------
+
+
+Runtime:addEventListener( "orientation", onOrientationChange )
 scene:addEventListener("createScene", scene)
 scene:addEventListener("enterScene", scene)
 scene:addEventListener("exitScene", scene)
