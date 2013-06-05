@@ -1,5 +1,6 @@
 -- Development by Matthew Maday
 -- DBA - Weekend Warrior Collective
+-- a 100% not-for-profit developer collective
 
 -- This is the main scene
 

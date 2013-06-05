@@ -1,3 +1,7 @@
+-- Development by Matthew Maday
+-- DBA - Weekend Warrior Collective
+-- a 100% not-for-profit developer collective
+
 -----------------------------------------------------------------------------------------
 -- UI Libraries 
 -----------------------------------------------------------------------------------------
