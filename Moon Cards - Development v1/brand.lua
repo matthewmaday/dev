@@ -1,6 +1,7 @@
---------------------------------------------------------------------------------------
--- Common use brand identity scene
---------------------------------------------------------------------------------------
+-- Development by Matthew Maday
+-- DBA - Weekend Warrior Collective
+
+-- This is the brand scene
 
 --------------------------------------------------------------------------------------
 -- External Libraries
@@ -14,11 +15,11 @@ local uiObj      = require ("classes.ui")
 -- local variable declaritions
 --------------------------------------------------------------------------------------
 
-screenGroup            = nil				-- the group that holds all of the graphics
-local gCollector       = {}
-local gStar            = {150,nil,2}
-local gTimer           = nil
-local myHeight, myWidth = display.contentHeight, display.contentWidth
+local screenGroup          = nil				-- the group that holds all of the graphics
+local gCollector           = {}                 -- the array of all graphics used
+local gStar                = {150,nil,2}
+local gTimer               = nil
+local myHeight, myWidth    = display.contentHeight, display.contentWidth
 local myCenterX, myCenterY = myWidth*.5, myHeight*.5
 
 --------------------------------------------------------------------------------------
@@ -117,6 +118,7 @@ function constructScene()
 	Runtime:addEventListener("enterFrame", rotateStar)
 
 end
+
 --------------------------------------------------------------------------------------
 -- INIT storyboard scene
 --------------------------------------------------------------------------------------
@@ -208,8 +210,6 @@ scene:addEventListener("createScene", scene)
 scene:addEventListener("enterScene", scene)
 scene:addEventListener("exitScene", scene)
 scene:addEventListener("destroyScene", scene)
-
-
 
 return scene
 

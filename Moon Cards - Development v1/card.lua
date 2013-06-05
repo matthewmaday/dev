@@ -1,14 +1,11 @@
------------------------------------------------------------------------------------------
---
--- Moon Cards
---
------------------------------------------------------------------------------------------
+-- Development by Matthew Maday
+-- DBA - Weekend Warrior Collective
 
-display.setStatusBar( display.HiddenStatusBar ) 
+-- This is the opening scene
 
------------------------------------------------------------------------------------------
--- INIT Libraries 
------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+-- External Libraries
+--------------------------------------------------------------------------------------
 
 	local fileio     = require ("classes.fileio")
 	local strObj     = require ("classes.str")
@@ -18,11 +15,6 @@ display.setStatusBar( display.HiddenStatusBar )
 	local widget     = require( "widget" )
 	local easingx    = require("classes.easing")  -- cool library i found- important easing"x"
 	local storyboard = require ("storyboard")
-	
-	require "sprite"
-	require "graphics"
-	require "display"
-
 
 
 -----------------------------------------------------------------------------------------
@@ -31,34 +23,16 @@ display.setStatusBar( display.HiddenStatusBar )
 
 	gRecord       	  = ""
 	gPrefs            = ""
-	gFileObj          = fileio.new(system.pathForFile( "data/data.txt", system.pathForFile()))
 	gPrefsObj         = fileio.new(system.pathForFile( "prefs.txt", system.DocumentsDirectory))
-	gMomentum         = {0,0}
-	gCardGroup        = display.newGroup()
-	gState            = "home" -- home, card, about
+	
+	local gCollector           = {}
+	local screenGroup          = display.newGroup()
+	local scene                = storyboard.newScene()
 
-local myHeight, myWidth = display.contentHeight, display.contentWidth
-local myCenterX, myCenterY = myWidth*.5, myHeight*.5
-
-
------------------------------------------------------------------------------------------
--- local Variables 
------------------------------------------------------------------------------------------
-
-	local storyboard = require ("storyboard")
-	local scene      = storyboard.newScene()
-
-	local viewRect = {
-	 	left   = 0,
-	 	top    = 90,
-	 	right  = display.viewableContentWidth,
-	 	bottom = display.viewableContentHeight-90
-	 }
-
-	 local tileWidth   = 107
-	 local tileHeight  = 33
-	 local dragText    = 0
-
+	local myHeight, myWidth    = display.contentHeight, display.contentWidth
+	local myCenterX, myCenterY = myWidth*.5, myHeight*.5
+	local tileWidth,tileHeight = 107, 33
+	local dragText    = 0
 
 
 -----------------------------------------------------------------------------------------
@@ -72,6 +46,7 @@ local myCenterX, myCenterY = myWidth*.5, myHeight*.5
 -- local Functions 
 -----------------------------------------------------------------------------------------
 
+
 local function readDataFile(pObject)
 	local str = pObject:readFile()
 
@@ -83,9 +58,22 @@ local function readDataFile(pObject)
 
 end
 --------
-local function saveLangPrefs()
+local function selectRecord()
 
-	gTestFile:writeFile(json.encode( gPrefs ))
+	if #gPrefs.status.remaining == 0 then
+
+		gPrefs.status.remaining = {}
+		for i=1,#gPrefs.status.total,1 do
+			gPrefs.status.remaining[#gPrefs.status.remaining+1] = gPrefs.status.total[i]
+		end
+
+	end
+		
+	local recordNum = math.random(#gPrefs.status.remaining)
+	gRecord = gScreenText[gPrefs.status.remaining[recordNum]]
+
+	table.remove(gPrefs.status.remaining,recordNum)
+	gPrefsObj:writeFile(json.encode( gPrefs ))
 
 end
 --------
@@ -94,9 +82,9 @@ local function initScroll()
 	scrollView = widget.newScrollView
 	{
 		left           = 0,
-		top            = display.contentHeight*.15,
+		top            = myHeight*.15,
 		width          = 300, 
-		height         = display.contentHeight-200,   -- controls the where the text considers 'bottom'
+		height         = myHeight-200,   -- controls the where the text considers 'bottom'
 		bottomPadding  = 140,
 		hideBackground = true,
 		id             = "onBottom",
@@ -125,54 +113,38 @@ local function reduceToZero(num,inc)
 
 end
 --------
-local function selectRecord()
-
-	if #gPrefs.status.remaining == 0 then
-
-		gPrefs.status.remaining = {}
-		for i=1,#gPrefs.status.total,1 do
-			gPrefs.status.remaining[#gPrefs.status.remaining+1] = gPrefs.status.total[i]
-		end
-
-		-- gPrefs.status.remaining = gPrefs.status.total
-	end
-		
-	local recordNum = math.random(#gPrefs.status.remaining)
-	gRecord = gScreenText[gPrefs.status.remaining[recordNum]]
-
-	table.remove(gPrefs.status.remaining,recordNum)
-	gPrefsObj:writeFile(json.encode( gPrefs ))
-
-end
---------
 local function initScreen()
   
-  	local img = display.newRect(gCardGroup, 0,myCenterY,myWidth,myHeight*.5)
+  	local img = display.newRect(screenGroup, 0,myCenterY,myWidth,myHeight*.5)
 	img:setReferencePoint( display.TopLeftReferencePoint )
 	img.x,img.y     = 0,myCenterY
 	img:setFillColor(32,98,117)
 
 	-- burst animation
-	burst       = display.newImageRect(gCardGroup, "images/home_burst.png", 600, 600)
-	burst.x     = display.contentCenterX
-	burst.y     = display.contentCenterY
-	burst.speed = 1
+	gCollector[#gCollector+1] = {burst=nil}
+	gCollector.burst=(uiObj.insertImage({group=screenGroup,objTable=gCollector,image="images/home_burst.png",
+	name="sun",width=600,height=600,x=myCenterX,y=myCenterY,alpha=1.0,
+	reference=display.CenterReferencePoint}))
 
-	card = display.newGroup()
+	gCollector.burst.speed = 1
+
+	-- creat the card display group
+	gCollector[#gCollector+1] = {card=nil}
+	gCollector.card = display.newGroup()
 
   	-- background
-	local img   = display.newImageRect(gCardGroup, "images/card_card.png", 320, 428)
+	local img    = display.newImageRect(screenGroup, "images/card_card.png", 320, 428)
 	img:setReferencePoint( display.CenterReferencePoint )
-	img.x = display.contentCenterX
-	img.y = display.contentCenterY-(display.contentHeight*.07)
-	img.alpha = 100
-	card:insert( img )
+	img.x, img.y = myCenterX, myCenterY-(myHeight*.07)
+	img.alpha    = 100
+
+	gCollector.card:insert( img )
 
 	lotsOfTextObject = display.newText( gRecord.text, 0, 0, 200, 0, "Papyrus", 16)
 	lotsOfTextObject:setTextColor(0,0,0) 
 	lotsOfTextObject:setReferencePoint( display.TopCenterReferencePoint )
-	lotsOfTextObject.x = display.contentCenterX
-	lotsOfTextObject.y = 10
+	lotsOfTextObject.x, lotsOfTextObject.y = myCenterX, 10
+
 	lotsOfTextObject.name = "text"
 	scrollView:insert( lotsOfTextObject )
 	scrollView.name = "body"
@@ -181,42 +153,42 @@ local function initScreen()
 	scrollView:setMask( mask )
 
 	scrollView:setReferencePoint( display.CenterReferencePoint )
-	scrollView.maskX = display.contentCenterX
+	scrollView.maskX = myCenterX
 	scrollView.maskY = 134
 
-	card:insert(scrollView)
-	card.y = display.contentCenterY-(display.contentHeight*.6)
-	card.alpha = 0
+	gCollector.card:insert(scrollView)
+	gCollector.card.y = myCenterY-(myHeight*.6)
+	gCollector.card.alpha = 0
 
-	gCardGroup:insert(card)
+	screenGroup:insert(gCollector.card)
 
  	-- banner
  	local banner = display.newGroup()
 	local img   = display.newImageRect(banner, "images/card_banner.png", 340, 82)
 	img:setReferencePoint( display.CenterReferencePoint )
-	img.x = display.contentCenterX
-	img.y = display.contentCenterY-(display.contentHeight*.36)
+	img.x = myCenterX
+	img.y = myCenterY-(myHeight*.36)
 
 	banner:insert(img)
 
 	bannerText = display.newText( banner, 
 		gRecord.title, 
 		display.contentWidth*.5, 
-		display.contentCenterY-(display.contentHeight*.39), 
+		myCenterY-(myHeight*.39), 
 		"Papyrus", 16 )
 
 	bannerText:setReferencePoint(display.CenterReferencePoint)
-	bannerText.x = display.contentCenterX
+	bannerText.x = myCenterX
 	bannerText:setTextColor(255, 255, 255)
 
 	banner:insert(bannerText)
 
-	gCardGroup:insert(banner)
+	screenGroup:insert(banner)
 	banner.alpha = 0
-	banner.y = display.contentCenterY-(display.contentHeight*.55)
+	banner.y = myCenterY-(myHeight*.55)
 
 	transition.to( banner, { x=banner.x, 
-		y=display.contentCenterY-(display.contentHeight*.49), 
+		y=display.contentCenterY-(myHeight*.49), 
 		time=2000, 
 		delay=300,
 		transition=easingx.easeOutElastic, 
@@ -245,10 +217,10 @@ end
 --------
 local function updateUI()
 
-	if card.y < 0 then
+	if gCollector.card.y < 0 then
 
-	transition.to( card, { x=card.x, 
-		 y=display.contentCenterY-(display.contentHeight*.47), 
+	transition.to( gCollector.card, { x=gCollector.card.x, 
+		 y=myCenterY-(myHeight*.47), 
 		 time=300, 
 		 delay=2,
 		 transition=easing.outQuad , 
@@ -264,7 +236,7 @@ local function refreshScreen()
 	scrollView:scrollToPosition({x = 1,y = 0,time = 0})
 	
 	lotsOfTextObject:setReferencePoint( display.TopCenterReferencePoint )
-	lotsOfTextObject.x    = display.contentCenterX
+	lotsOfTextObject.x    = myCenterX
 	lotsOfTextObject.y    = 10
 
 	bannerText.text = gRecord.title
@@ -328,8 +300,8 @@ local pressButton = function( event )
 			popup:insert(weblink)
 
 			popup:setReferencePoint( display.BottomCenterReferencePoint )
-			popup.x = display.contentCenterX + 10
-			popup.y = display.contentHeight - 30
+			popup.x = myCenterX + 10
+			popup.y = myHeight - 30
 
 			transition.from( popup, { 
 		 	time=300, 
@@ -348,8 +320,8 @@ local pressButton = function( event )
 	
 		end
 
-		card.y=-20
-		card.alpha = 0
+		gCollector.card.y=-20
+		gCollector.card.alpha = 0
 		refreshScreen()
 	elseif event.target.id == "fb" and event.phase == "ended" then
 
@@ -416,8 +388,8 @@ local function loadButtons()
 
 	btnPanel:insert(btn)
 	btnPanel:setReferencePoint( display.TopCenterReferencePoint )
-	btnPanel.x = display.contentCenterX - 88 
-	btnPanel.y = display.contentHeight - 40
+	btnPanel.x = myCenterX - 88 
+	btnPanel.y = myHeight - 40
  end
 
 -----------------------------------------------------------------------------------------
@@ -427,25 +399,25 @@ local function loadButtons()
 function scene:createScene(event)
 	local screenGroup = self.view
 
-    
+    local pFile  = fileio.new(system.pathForFile( "data/data.txt", system.pathForFile()))
+	gScreenText  = readDataFile(pFile)
 
-	gScreenText = readDataFile(gFileObj)
-	gPrefs      = readDataFile(gPrefsObj)
+	gPrefs       = readDataFile(gPrefsObj)
 
 	if gPrefs == "" then
 
 		local tmpFileObj    = fileio.new(system.pathForFile( "data/prefs.txt", system.pathForFile()))
 		local prefsTemplate = fileio.readFile(tmpFileObj, "")
 
-		gPrefsObj:writeFile(prefsTemplate)
+		pPrefs:writeFile(prefsTemplate)
 		gPrefs = readDataFile(gPrefsObj)
 
 	end
 
-	initScroll()
-	selectRecord()
-	initScreen()
-	loadButtons()
+initScroll()
+selectRecord()
+initScreen()
+loadButtons()
 
 end
 
@@ -475,12 +447,22 @@ function scene:destroyScene(event)
 
 end
 
+
+--------------------------------------------------------------------------------------
+-- scene execution
+--------------------------------------------------------------------------------------
+
+
+
 scene:addEventListener("createScene", scene)
 scene:addEventListener("enterScene", scene)
 scene:addEventListener("exitScene", scene)
 scene:addEventListener("destroyScene", scene)
 
 Runtime:addEventListener("enterFrame",updateUI)
+
+
+
 
 return scene
 

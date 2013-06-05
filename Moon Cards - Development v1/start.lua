@@ -1,4 +1,7 @@
+-- Development by Matthew Maday
+-- DBA - Weekend Warrior Collective
 
+-- This is the opening scene
 
 --------------------------------------------------------------------------------------
 -- External Libraries
@@ -16,9 +19,9 @@ physics.setGravity(0,0 )
 -- local variable declaritions
 --------------------------------------------------------------------------------------
 
-screenGroup         = nil
-spawnTable          = {}
-local gCollector    = {}
+local screenGroup         = nil
+local spawnTable          = {}
+local gCollector          = {}
 
 local myHeight, myWidth = display.contentHeight, display.contentWidth
 local myCenterX, myCenterY = myWidth*.5, myHeight*.5
@@ -27,9 +30,28 @@ local myCenterX, myCenterY = myWidth*.5, myHeight*.5
 -- functions
 --------------------------------------------------------------------------------------
 
+-- alignContent()
+-- onOrientationChange( event )
+-- constructScene()
+-- rotate()
+-- touchScreen(event)
+
+local function alignContent()
+
+	screenGroup.x,screenGroup.y = (display.contentWidth-myWidth)*.5,(display.contentHeight-myHeight)*.5
+
+	if system.orientation == "portrait" or system.orientation == "portraitUpsideDown" then
+		gCollector.title.y = display.contentHeight*.1
+		gCollector.continue.y = display.contentHeight*.9
+	else
+		gCollector.title.y = display.contentHeight*.3
+		gCollector.continue.y = display.contentHeight*1.05
+	end
+
+end
+--------
 local function onOrientationChange( event )
 
-	print("Change")
  	local delta = event.delta
 
 	if screenGroup.rotation == 0 and delta < 0 then
@@ -38,14 +60,12 @@ local function onOrientationChange( event )
 		local newAngle = delta-screenGroup.rotation
 	end
 
-	screenGroup.x,screenGroup.y = (display.contentWidth-myWidth)*.5,(display.contentHeight-myHeight)*.5
-	transition.to( screenGroup, { time=150, rotation=newAngle } )
-
-	gCollector.title.y = display.contentHeight*.2
+	alignContent()
+	transition.to( screenGroup, { time=150, rotation=newAngle } )	
 
 end
 --------
-function constructScene()
+local function constructScene()
 
 	if myWidth > myHeight then
 		myHeight = myWidth
@@ -62,15 +82,18 @@ function constructScene()
 	img:setFillColor(32,98,117)
 
 	-- burst animation
-	burst             = display.newImageRect(screenGroup, "images/home_burst.png", 600, 600)
-	burst.x, burst.y  = myCenterX,myCenterY
-	burst.speed = 1
-	burst.enterFrame = rotate
-	Runtime:addEventListener("enterFrame", burst)
+	gCollector[#gCollector+1] = {burst=nil}
+	gCollector.burst=(uiObj.insertImage({group=screenGroup,objTable=gCollector,image="images/home_burst.png",
+	name="sun",width=600,height=600,x=myCenterX,y=myCenterY,alpha=1.0,
+	reference=display.CenterReferencePoint}))
+
+	gCollector.burst.speed = 1
+	gCollector.burst.enterFrame = rotate
+	Runtime:addEventListener("enterFrame", gCollector.burst)
 
 	for i=1,30 do
 
-		local x,y 	  = uiObj.randomDirectionDegrees(100, 100) 
+		local x,y 	  = uiObj.randomDirectionDegrees(myCenterX, myCenterY) 
 		spawnTable[i] = uiObj.spawn(
 		{
 			image 		= "images/home_star.png",
@@ -82,8 +105,8 @@ function constructScene()
 			bounce 		= .4,
 			isSensor 	= false,
 			bodyType 	= "static",
-			x			= display.viewableContentWidth*.5,
-			y			= display.viewableContentHeight*.5,
+			x			= myCenterX,
+			y			= myCenterY,
 			speed       = {x,y},
 			width       = 1,
 			height      = 1,
@@ -100,7 +123,6 @@ function constructScene()
 	end
 
 	-- center moon
-
 	gCollector[#gCollector+1] = {sun=nil}
 	gCollector.sun=(uiObj.insertImage({group=screenGroup,objTable=gCollector,image="images/home_sunmoon.png",
 	name="sun",width=104,height=107,x=myCenterX,y=myCenterY,alpha=0.0,
@@ -124,25 +146,14 @@ function constructScene()
 
 	transition.to( gCollector.continue, { time=2000, delay=0, alpha=1.0, } )
 
+	alignContent()
+
 end
-
-
---------------------------------------------------------------------------------------
--- INIT storyboard scene
---------------------------------------------------------------------------------------
-
-
 --------
 local function rotate()
-
-	burst.rotation = (burst.rotation > 360) and 0 or (burst.rotation + .1)
+	gCollector.burst.rotation = (gCollector.burst.rotation > 360) and 0 or (gCollector.burst.rotation + .1)
 end
-
-
---------------------------------------------------------------------------------------
--- functions
---------------------------------------------------------------------------------------
-
+--------
 function touchScreen(event)
 	if event.phase == "began" then
 		storyboard.gotoScene( "card", "fade", 400 )
@@ -153,6 +164,11 @@ end
 --------------------------------------------------------------------------------------
 -- INIT storyboard scene
 --------------------------------------------------------------------------------------
+
+-- scene:createScene(event)
+-- scene:enterScene(event)
+-- scene:exitScene(event)
+-- scene:destroyScene(event)
 
 
 function scene:createScene(event)
@@ -185,7 +201,6 @@ function scene:enterScene(event)
 	screenGroup:setReferencePoint( display.TopLeftReferencePoint )
 	screenGroup.x,screenGroup.y = (display.contentWidth-myWidth)*.5,(display.contentHeight-myHeight)*.5
 
-
 	constructScene()
 
 end
@@ -194,7 +209,7 @@ function scene:exitScene(event)
 	
 	-- remove listener events
 	Runtime:removeEventListener("touch",touchScreen)
-	Runtime:removeEventListener("enterFrame", burst)
+	Runtime:removeEventListener("enterFrame", gCollector.burst)
 	scene:removeEventListener("createScene", scene)
 	scene:removeEventListener("enterScene", scene)
 	scene:removeEventListener("exitScene", scene)
@@ -203,11 +218,11 @@ function scene:exitScene(event)
 
 	-- clean up globals
 
-	burst:removeSelf( )
-	burst = nil
+	-- gCollector.burst:removeSelf( )
+	--gCollector.burst = nil
 	--spawnTable:removeSelf( )
 	screenGroup:removeSelf()
-	screenGroup,burst, spawnTable = nil, nil, nil
+	screenGroup, spawnTable = nil, nil
 
 end
 --------
@@ -218,7 +233,6 @@ end
 --------------------------------------------------------------------------------------
 -- scene execution
 --------------------------------------------------------------------------------------
-
 
 Runtime:addEventListener( "orientation", onOrientationChange )
 scene:addEventListener("createScene", scene)
