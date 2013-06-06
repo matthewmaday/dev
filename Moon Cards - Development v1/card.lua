@@ -50,15 +50,17 @@ local function alignContent()
 	screenGroup.x,screenGroup.y = (display.contentWidth-myWidth)*.5,(display.contentHeight-myHeight)*.5
 
 	if system.orientation == "portrait" or system.orientation == "portraitUpsideDown" then
-		gCollector.card.x = myCenterX
+		gCollector.card.x, gCollector.card.y = myCenterX,myCenterY-(myHeight*.07)
 		gCollector.card.xScale,gCollector.card.yScale = 1.0,1.0
-		gCollector.card.y = myCenterY-(myHeight*.07)
-		
+		gCollector.banner.xScale,gCollector.banner.yScale = 1.0,1.0
+		gCollector.banner.x,gCollector.banner.y = gCollector.banner.x,myCenterY-(myHeight*.4)
 	else
-		gCollector.card.x = myCenterX-(myWidth*.2)
-		gCollector.card.xScale,gCollector.card.yScale = .75,.75
-		gCollector.card.y = myCenterY-(myHeight*.01)
 		
+		gCollector.card.xScale,gCollector.card.yScale = .75,.75
+		gCollector.banner.xScale,gCollector.banner.yScale = .75,.75
+
+		gCollector.card.x,gCollector.card.y = myCenterX-(myWidth*.2), myCenterY-(myHeight*.01)
+		--gCollector.banner.x,gCollector.banner.y = myCenterX-(myWidth*.2), myCenterY-(myHeight*.01)
 	end
 
 end
@@ -419,27 +421,23 @@ local function constructBanner()
 	gCollector.banner:insert( bkg )
 	screenGroup:insert(gCollector.banner)
 	gCollector.banner:setReferencePoint( display.CenterReferencePoint )
-	gCollector.banner.x, gCollector.banner.y = myCenterX, myCenterY-(myHeight*.4)
+	gCollector.banner.x, gCollector.banner.y, gCollector.banner.alpha = myCenterX, 10, 0 -- gCollector.banner.height*.5
 
  	-- Insert the banner text
-	bannerText = display.newText( gCollector.banner, gRecord.title, display.contentWidth*.5, myCenterY-(myHeight*.39), "Papyrus", 16 )
+ 	gCollector[#gCollector+1] = {bannerText=nil}
+	gCollector.bannerText = display.newText( gCollector.banner, gRecord.title,  display.contentWidth*.5, myCenterY-(myHeight*.39), "Papyrus", 16 )
+	gCollector.bannerText:setReferencePoint(display.CenterReferencePoint)
+	gCollector.bannerText:setTextColor(255, 255, 255)
+	gCollector.bannerText.x,gCollector.bannerText.y = gCollector.banner.width*.5, gCollector.banner.height*.44
 
-	-- bannerText:setReferencePoint(display.CenterReferencePoint)
-	-- bannerText.x = myCenterX
-	-- bannerText:setTextColor(255, 255, 255)
+	gCollector.banner:insert(gCollector.bannerText)
 
-	-- banner:insert(bannerText)
-
-	-- screenGroup:insert(banner)
-	-- banner.alpha = 0
-	-- banner.y = myCenterY-(myHeight*.55)
-
-	-- transition.to( banner, { x=banner.x, 
-	-- 	y=display.contentCenterY-(myHeight*.49), 
-	-- 	time=2000, 
-	-- 	delay=300,
-	-- 	transition=easingx.easeOutElastic, 
-	-- 	alpha=1.0, } )
+	transition.to( gCollector.banner, { x=gCollector.banner.x, 
+		y=myCenterY-(myHeight*.4), 
+		time=2000, 
+		delay=300,
+		transition=easingx.easeOutElastic, 
+		alpha=1.0, } )
 
 end
 --------
@@ -506,9 +504,6 @@ function scene:createScene(event)
 	img.x,img.y     = 0,0
 	img:setFillColor(0,0,0)
 
-
-
-
 	return screenGroup
 
 end
@@ -520,6 +515,7 @@ function scene:enterScene(event)
 	screenGroup:setReferencePoint( display.TopLeftReferencePoint )
 	screenGroup.x,screenGroup.y = (display.contentWidth-myWidth)*.5,(display.contentHeight-myHeight)*.5
 
+	
 	constructScene()
 
 
@@ -543,6 +539,7 @@ end
 --------------------------------------------------------------------------------------
 -- scene execution
 --------------------------------------------------------------------------------------
+
 
 	initExternalData()
 	initScroll()
