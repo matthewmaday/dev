@@ -29,7 +29,6 @@
 	local gCollector           = {}
 	local screenGroup          = display.newGroup()
 	local scene                = storyboard.newScene()
-
 	local myHeight, myWidth    = display.contentHeight, display.contentWidth
 	local myCenterX, myCenterY = myWidth*.5, myHeight*.5
 
@@ -45,22 +44,46 @@
 -- local Functions 
 -----------------------------------------------------------------------------------------
 
+
+--------
 local function alignContent()
 
 	screenGroup.x,screenGroup.y = (display.contentWidth-myWidth)*.5,(display.contentHeight-myHeight)*.5
 
 	if system.orientation == "portrait" or system.orientation == "portraitUpsideDown" then
-		gCollector.card.x, gCollector.card.y = myCenterX,myCenterY-(myHeight*.07)
-		gCollector.card.xScale,gCollector.card.yScale = 1.0,1.0
-		gCollector.banner.xScale,gCollector.banner.yScale = 1.0,1.0
-		gCollector.banner.x,gCollector.banner.y = gCollector.banner.x,myCenterY-(myHeight*.4)
-	else
 		
-		gCollector.card.xScale,gCollector.card.yScale = .75,.75
-		gCollector.banner.xScale,gCollector.banner.yScale = .75,.75
+		--card
+		gCollector.card.xScale,gCollector.card.yScale = 1.0,1.0
+		transition.to( gCollector.card, { x= myCenterX,y=myCenterY-(myHeight*.07), time=400, delay=0,alpha=1.0,
+		transition=easing.outQuad})
 
-		gCollector.card.x,gCollector.card.y = myCenterX-(myWidth*.2), myCenterY-(myHeight*.01)
-		--gCollector.banner.x,gCollector.banner.y = myCenterX-(myWidth*.2), myCenterY-(myHeight*.01)
+		-- banner
+		transition.cancel( gCollector.banner )
+		gCollector.banner.xScale,gCollector.banner.yScale = 1.0,1.0
+		transition.to( gCollector.banner, { x= myCenterX,y=myCenterY-(myHeight*.38), time=400, delay=0,alpha=1.0,
+		transition=easing.outQuad})
+
+		-- buttons
+		transition.to( gCollector.buttons, { x= 0,y=myHeight-40, time=400, delay=0,alpha=1.0,rotation=0,
+		transition=easing.outQuad})
+
+	else
+
+		-- card
+		gCollector.card.xScale,gCollector.card.yScale = .75,.75
+		transition.to( gCollector.card, { x= myCenterX-(myWidth*.2),y=myCenterY-(myHeight*.01), time=400, delay=0,alpha=1.0,
+		transition=easing.outQuad})
+		
+		-- banner
+		transition.cancel( gCollector.banner )
+		gCollector.banner.xScale,gCollector.banner.yScale = .75,.75
+		transition.to( gCollector.banner, { x= myCenterX-(myWidth*.2), y=myCenterY-(myHeight*.24), time=400, delay=0,alpha=1.0,
+		transition=easing.outQuad})
+
+		-- buttons
+		transition.to( gCollector.buttons, { x= myWidth-40,y=gCollector.buttons.width, time=400, delay=0,alpha=1.0,rotation=-90,
+		transition=easing.outQuad})
+
 	end
 
 end
@@ -134,9 +157,9 @@ local function initScroll()
 	gCollector.text = widget.newScrollView
 	{
 		left           = 0,
-		top            = myHeight*.15,
-		width          = 300, 
-		height         = myHeight-200,   -- controls the where the text considers 'bottom'
+		top            = 100,--myHeight*.18,
+		width          = 280, 
+		height         = 300,   -- controls the where the text considers 'bottom'
 		bottomPadding  = 140,
 		hideBackground = true,
 		id             = "onBottom",
@@ -162,19 +185,6 @@ local function reduceToZero(num,inc)
 	else 
 		return r
 	end
-
-end
---------
-local function initScreen()
-  
-
-
-
-	
-
-	
-
- 
 
 end
 --------
@@ -313,65 +323,69 @@ end
 --------
 local function loadButtons()
 
-	-- local btnPanel = display.newGroup()
-
-	-- local img   = display.newRect(0,0,640,100)
-	-- img.strokeWidth = 0
-	-- img:setFillColor(32,98,117)
 	
-	-- img.x = 20
-	-- img.y = 30
-	-- img:setReferencePoint( display.TopCenterReferencePoint )
+	local rectWidth = myWidth
+	if myHeight < rectWidth then
+		rectWidth = myHeight
+	end
 
-	-- btnPanel:insert(img)
+	local totalCombinedWidth = 321
+	local offset = (rectWidth-totalCombinedWidth)*.5
 
-	-- local btn = widget.newButton
-	-- {
-	-- 	id          = "about",
-	-- 	width       = 103,
-	-- 	height      = 40,
-	-- 	defaultFile = "images/card_about0.png",
-	-- 	overFile = "images/card_about1.png",
-	-- 	onEvent = pressButton,
-	-- }
+-- create the card display group
+	gCollector[#gCollector+1] = {buttons=nil}
+	gCollector.buttons = display.newGroup()
+	-- gCollector.buttons.width = myWidth
+	-- gCollector.buttons.height = 40
+	-- gCollector.buttons:setReferencePoint( display.CenterReferencePoint )
+	
 
-	-- btn.x = 0
-	-- btn.y = 0
+	local img   = display.newRect(0,0,rectWidth,40)
+	img.strokeWidth = 0
+	img:setFillColor(32,98,117)
 
-	-- btnPanel:insert(btn)
+	img:setReferencePoint( display.TopLeftReferencePoint )
+	gCollector.buttons:insert(img)
+	gCollector.buttons.x = 0
+	gCollector.buttons.y = 0
 
-	-- local btn = widget.newButton
-	-- {
-	-- 	id = "refresh",
-	-- 	width = 118,
-	-- 	height = 40,
-	-- 	defaultFile = "images/card_refresh0.png",
-	-- 	overFile = "images/card_refresh1.png",
-	-- 	onEvent = pressButton,
-	-- }
+	local btn = widget.newButton
+	{
+		id          = "about",
+		left = offset,top = 0, width = 103, height = 40,
+		defaultFile = "images/card_about0.png",
+		overFile    = "images/card_about1.png",
+		onEvent     = pressButton,
+	}
 
-	-- btn.x = 110
-	-- btn.y = 0
+	gCollector.buttons:insert(btn)
 
-	-- btnPanel:insert(btn)
+	local btn = widget.newButton
+	{
+		id = "refresh",
+		left = offset+103, top = 0, width = 118, height = 40,
+		defaultFile = "images/card_refresh0.png",
+		overFile    = "images/card_refresh1.png",
+		onEvent     = pressButton,
+	}
 
-	-- local btn = widget.newButton
-	-- {
-	-- 	id = "fb",
-	-- 	width = 100,
-	-- 	height = 40,
-	-- 	defaultFile = "images/card_share0.png",
-	-- 	overFile = "images/card_share1.png",
-	-- 	onEvent = pressButton,
-	-- }
+	gCollector.buttons:insert(btn)
 
-	-- btn.x = 103+118
-	-- btn.y = 0
+	local btn = widget.newButton
+	{
+		id = "fb",
+		left = offset+221, top = 0, width = 100, height = 40,
+		defaultFile = "images/card_share0.png",
+		overFile = "images/card_share1.png",
+		onEvent = pressButton,
+	}
 
-	-- btnPanel:insert(btn)
-	-- btnPanel:setReferencePoint( display.TopCenterReferencePoint )
-	-- btnPanel.x = myCenterX - 88 
-	-- btnPanel.y = myHeight - 40
+	gCollector.buttons:insert(btn)
+	screenGroup:insert(gCollector.buttons)
+	
+	gCollector.buttons.x, gCollector.buttons.y, gCollector.buttons.alpha = 0, myHeight-40, 0.0
+
+
  end
 
 -----------------------------------------------------------------------------------------
@@ -404,7 +418,7 @@ local function constructCard()
 	local mask = graphics.newMask( "images/mask.png" )
 	gCollector.text:setMask( mask )
 	gCollector.text.maskX = bkg.width*.5
-	gCollector.text.maskY = bkg.height*.33
+	gCollector.text.maskY = bkg.height*.26
 
 end
 --------
@@ -417,11 +431,11 @@ local function constructBanner()
   	-- Insert the banner background
 	local bkg    = display.newImageRect(gCollector.banner, "images/card_banner.png", 340, 82)
 	bkg:setReferencePoint( display.TopLeftReferencePoint )
-	bkg.x, bkg.y, bkg.alpha = 0,0,100
+	bkg.x, bkg.y, bkg.alpha = 0,0,1.0
 	gCollector.banner:insert( bkg )
 	screenGroup:insert(gCollector.banner)
 	gCollector.banner:setReferencePoint( display.CenterReferencePoint )
-	gCollector.banner.x, gCollector.banner.y, gCollector.banner.alpha = myCenterX, 10, 0 -- gCollector.banner.height*.5
+	gCollector.banner.x, gCollector.banner.y, gCollector.banner.alpha = myCenterX, myCenterY-(myHeight*.4), 1.0 -- gCollector.banner.height*.5
 
  	-- Insert the banner text
  	gCollector[#gCollector+1] = {bannerText=nil}
@@ -432,12 +446,7 @@ local function constructBanner()
 
 	gCollector.banner:insert(gCollector.bannerText)
 
-	transition.to( gCollector.banner, { x=gCollector.banner.x, 
-		y=myCenterY-(myHeight*.4), 
-		time=2000, 
-		delay=300,
-		transition=easingx.easeOutElastic, 
-		alpha=1.0, } )
+
 
 end
 --------
@@ -545,7 +554,7 @@ end
 	initScroll()
 	selectRecord()
 	-- initScreen()
-	-- loadButtons()
+	loadButtons()
 
 Runtime:addEventListener( "orientation", onOrientationChange )
 scene:addEventListener("createScene", scene)
