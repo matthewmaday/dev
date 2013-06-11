@@ -32,7 +32,6 @@ local myCenterX, myCenterY = myWidth*.5, myHeight*.5
 -- rotateStar(event,object)
 -- initStar(event)
 
-
 local function onOrientationChange( event )
 
  	local delta = event.delta
@@ -43,8 +42,8 @@ local function onOrientationChange( event )
 		local newAngle = delta-screenGroup.rotation
 	end
 
-	screenGroup.x,screenGroup.y = (display.contentWidth-myWidth)*.5,0
-	transition.to( screenGroup, { time=150, rotation=newAngle } )
+	transition.to( screenGroup, { x=(display.contentWidth-myWidth)*.5,y=0, 
+	time=400, delay=0,alpha=1.0,transition=easing.outQuad,rotation=newAngle})
 	
 end
 --------
@@ -80,7 +79,7 @@ function constructScene()
 	myCenterX, myCenterY = myWidth*.5, myHeight*.5
 
 	-- background rect that fades in
-	local img = display.newRect(screenGroup, 0,0,myWidth,myCenterY)
+	local img = display.newRect(screenGroup, 0,0,myWidth*2,myCenterY)
 	img:setReferencePoint( display.TopLeftReferencePoint )
 	img.x,img.y     = 0,0
 	img:setFillColor(255,255,255)

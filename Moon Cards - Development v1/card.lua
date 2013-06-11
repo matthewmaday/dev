@@ -64,7 +64,9 @@ local function alignContent()
 		transition=easing.outQuad})
 
 		-- buttons
-		transition.to( gCollector.buttons, { x= 0,y=myHeight-40, time=400, delay=0,alpha=1.0,rotation=0,
+		transition.cancel( gCollector.buttons )
+		gCollector.buttons.x, gCollector.buttons.y,gCollector.buttons.rotation = 0, myHeight,0
+		transition.to( gCollector.buttons, { x= 0,y=myHeight-40, time=400, delay=0,alpha=1.0,
 		transition=easing.outQuad})
 
 	else
@@ -81,7 +83,9 @@ local function alignContent()
 		transition=easing.outQuad})
 
 		-- buttons
-		transition.to( gCollector.buttons, { x= myWidth-40,y=gCollector.buttons.width, time=400, delay=0,alpha=1.0,rotation=-90,
+		transition.cancel( gCollector.buttons )
+		gCollector.buttons.x, gCollector.buttons.y,gCollector.buttons.rotation = myWidth, gCollector.buttons.width,-90
+		transition.to( gCollector.buttons, { x= myWidth-40,y=gCollector.buttons.width, time=400, delay=0,alpha=1.0,
 		transition=easing.outQuad})
 
 	end
@@ -98,8 +102,7 @@ local function onOrientationChange( event )
 		local newAngle = delta-screenGroup.rotation
 	end
 
-	alignContent()
-	transition.to( screenGroup, { time=150, rotation=newAngle } )	
+	alignContent()	
 
 end
 --------
@@ -157,7 +160,7 @@ local function initScroll()
 	gCollector.text = widget.newScrollView
 	{
 		left           = 0,
-		top            = 100,--myHeight*.18,
+		top            = 100,   -- myHeight*.18,
 		width          = 280, 
 		height         = 300,   -- controls the where the text considers 'bottom'
 		bottomPadding  = 140,
@@ -251,8 +254,9 @@ end
 --------
 local pressButton = function( event )
 
--- 	if event.target.id == "about" and event.phase == "ended" then
-		
+	if event.target.id == "about" and event.phase == "ended" then
+	print(event.target.id)	
+
 -- 		if popup ~= nil then
 
 -- 			makeModel(0)
@@ -260,24 +264,32 @@ local pressButton = function( event )
 	
 -- 		else
 
--- 		makeModel(1)
--- 			popup = display.newGroup()
--- 			local img   = display.newImageRect(popup, "images/popup.png", 313, 302)
--- 			img:setReferencePoint( display.CenterReferencePoint )
--- 			img.x = 156
--- 			img.y = 151
--- 			img.alpha = 1.0
--- 			popup:insert(img)
+--		makeModel(1)
 
--- 			local pText    = "Melissa Granchi is a Psychotherapist, Wellness \n Consultant, and Yoga Teacher. Utilizing her \ntraining in psychology, Yoga and nutrition, \nMelissa guides you in the integration of your \nbody, mind and soul. \n\nFor additional information please go to:"
--- 			local pTextObj = display.newText( popup, pText, 0,  0, "Papyrus", 12 )
+		if gCollector.popup~= nil then
+			gCollector.popup:removeSelf( ) 
+		end
 
--- 			pTextObj:setReferencePoint(display.TopLeftReferencePoint)
--- 			pTextObj.x     = 30
--- 			pTextObj.y     = 30
--- 			pTextObj:setTextColor(70, 70, 70)
+		gCollector[#gCollector+1] = {popup=nil}
+		gCollector.popup = display.newGroup()
 
--- 			popup:insert(pTextObj)
+
+			local img   = display.newImageRect(gCollector.popup, "images/popup.png", 313, 302)
+			img:setReferencePoint( display.BottomLeftReferencePoint )
+			img.x = 156
+			img.y = myHeight-40
+			img.alpha = 1.0
+			gCollector.popup:insert(img)
+
+			local pText    = "Melissa Granchi is a Psychotherapist, Wellness \n Consultant, and Yoga Teacher. Utilizing her \ntraining in psychology, Yoga and nutrition, \nMelissa guides you in the integration of your \nbody, mind and soul. \n\nFor additional information please go to:"
+			local pTextObj = display.newText( gCollector.popup, pText, 0,  0, "Papyrus", 12 )
+
+			pTextObj:setReferencePoint(display.TopLeftReferencePoint)
+			pTextObj.x     = 30
+			pTextObj.y     = 30
+			pTextObj:setTextColor(70, 70, 70)
+
+			gCollector.popup:insert(pTextObj)
 
 -- -- look into stage:setFocus( object [,touchID] ) for touch issue
 
@@ -303,8 +315,9 @@ local pressButton = function( event )
 
 -- 		end
 
--- 	elseif event.target.id == "refresh" and event.phase == "ended" then
+	elseif event.target.id == "refresh" and event.phase == "ended" then
 
+print(event.target.id)
 -- 	if popup ~= nil then
 
 -- 			makeModel(0)
@@ -317,7 +330,7 @@ local pressButton = function( event )
 -- 		refreshScreen()
 -- 	elseif event.target.id == "fb" and event.phase == "ended" then
 
--- 	end
+	end
 
 end
 --------
@@ -524,14 +537,7 @@ function scene:enterScene(event)
 	screenGroup:setReferencePoint( display.TopLeftReferencePoint )
 	screenGroup.x,screenGroup.y = (display.contentWidth-myWidth)*.5,(display.contentHeight-myHeight)*.5
 
-	
 	constructScene()
-
-
-
-
-
-
 end
 --------
 function scene:exitScene(event)
@@ -550,11 +556,11 @@ end
 --------------------------------------------------------------------------------------
 
 
-	initExternalData()
-	initScroll()
-	selectRecord()
+initExternalData()
+initScroll()
+selectRecord()
 	-- initScreen()
-	loadButtons()
+loadButtons()
 
 Runtime:addEventListener( "orientation", onOrientationChange )
 scene:addEventListener("createScene", scene)

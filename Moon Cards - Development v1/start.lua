@@ -1,5 +1,6 @@
 -- Development by Matthew Maday
 -- DBA - Weekend Warrior Collective
+-- a 100% not-for-profit developer collective
 
 -- This is the opening scene
 
@@ -38,14 +39,26 @@ local myCenterX, myCenterY = myWidth*.5, myHeight*.5
 
 local function alignContent()
 
-	screenGroup.x,screenGroup.y = (display.contentWidth-myWidth)*.5,(display.contentHeight-myHeight)*.5
+	transition.to( screenGroup, { x=(display.contentWidth-myWidth)*.5,y=(display.contentHeight-myHeight)*.5, 
+	time=400, delay=0,transition=easing.outQuad})
+
 
 	if system.orientation == "portrait" or system.orientation == "portraitUpsideDown" then
-		gCollector.title.y = display.contentHeight*.1
-		gCollector.continue.y = display.contentHeight*.9
+		
+		transition.to( gCollector.title, { y=display.contentHeight*.1, time=400, delay=0,
+		transition=easing.outQuad})
+
+		transition.to( gCollector.continue, { y=display.contentHeight*.9, time=400, delay=0,
+		transition=easing.outQuad})
+
 	else
-		gCollector.title.y = display.contentHeight*.3
-		gCollector.continue.y = display.contentHeight*1.05
+
+		transition.to( gCollector.title, { y=display.contentHeight*.3, time=400, delay=0,
+		transition=easing.outQuad})
+
+		transition.to( gCollector.continue, { y=display.contentHeight*1.05, time=400, delay=0,
+		transition=easing.outQuad})
+
 	end
 
 end
@@ -76,7 +89,7 @@ local function constructScene()
 	myCenterX, myCenterY = myWidth*.5, myHeight*.5
 
 	-- background
-	local img = display.newRect(screenGroup, 0,myCenterY,myWidth,myHeight*.5)
+	local img = display.newRect(screenGroup, 0,myCenterY,myWidth*1.5,myHeight*1.5)
 	img:setReferencePoint( display.TopLeftReferencePoint )
 	img.x,img.y     = 0,myCenterY
 	img:setFillColor(32,98,117)
