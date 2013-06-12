@@ -208,19 +208,21 @@ end
 --------
 local function refreshScreen()
 
+	if system.orientation == "portrait" or system.orientation == "portraitUpsideDown" then
+		locX,locY = myCenterX,myCenterY-(myHeight*.07)
+	else
+		locX,locY = myCenterX-(myWidth*.2),myCenterY-(myHeight*.01)
+	end
 
-	gCollector.card.y=myCenterY-(myHeight*.1)
+	gCollector.card.y= locY-30
 	gCollector.card.alpha = 0.0
-
 
 	selectRecord()
 	gCollector.cardText.text = gRecord.text
 	gCollector.text:scrollToPosition({x = 1,y = 0,time = 0})
 
-	transition.to( gCollector.card, { x= myCenterX,y=myCenterY-(myHeight*.07), time=400, delay=0,alpha=1.0,
-		transition=easing.outQuad})
-
-
+	transition.to( gCollector.card, { x=locX,y=locY, time=400, delay=0,alpha=1.0,transition=easing.outQuad})
+	
 	gCollector.bannerText.text = gRecord.title
 
 end
