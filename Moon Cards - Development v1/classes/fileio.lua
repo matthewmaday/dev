@@ -3,6 +3,7 @@
 
 -- external libraries
 require "io"
+local json       = require "json"
 local str = require("classes.str")
 
 -- local variables
@@ -81,4 +82,19 @@ function fileio:writeFile(data)
 	-- os.remove( filePath )
 
 end
+-------
+-- function fileio:readJsonFile(pObject)
+	
+-- 	print(pObject)
+-- 	local str = pObject:readFile()
+
+-- 	if str == "" then
+-- 		return str
+-- 	else
+-- 		return json.decode( str)
+-- 	end
+
+-- end
+
 return fileio
+

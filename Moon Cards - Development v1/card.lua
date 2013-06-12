@@ -16,7 +16,7 @@
 	local widget     = require( "widget" )
 	local easingx    = require("classes.easing")  -- cool library i found- important easing"x"
 	local storyboard = require ("storyboard")
-
+	local mathLib    = require("classes.mathlib")
 
 -----------------------------------------------------------------------------------------
 -- Global Variables 
@@ -134,7 +134,6 @@ local function initExternalData()
 	end
 end
 --------
-
 local function selectRecord()
 
 	if #gPrefs.status.remaining == 0 then
@@ -173,40 +172,23 @@ local function initScroll()
 
 end
 --------
-local function reduceToZero(num,inc)
-
-	local r = 0
-
-	if num > 0 then
-		r = num-inc
-	else
-		r = num+inc
-	end
-
-	if math.abs(r) <= inc then
-		return 0
-	else 
-		return r
-	end
-
-end
---------
 local function makeModel(pState)
 
-	-- if pState == 1 then
-	-- 	model = display.newRect(0, 0, 960, 440)
-	-- 	model:setReferencePoint(display.TopLeftReferencePoint)
-	-- 	model.x = 0
-	-- 	model.alpha = 0.0
-	-- 	model.isHitTestable = true -- Only needed if alpha is 0
-	-- 	model:addEventListener("touch", function() return true end)
-	-- 	model:addEventListener("tap", function() return true end)
-	-- else
-	-- 	if model ~= nil then
-	-- 		model:removeSelf( )
-	-- 		model = nil
-	-- 	end
-	-- end
+	if pState == 1 then
+		model = display.newRect(0, 0, myCenterX+(gCollector.card.width*.5), myHeight-40)
+		model:setReferencePoint(display.TopLeftReferencePoint)
+		model.x = 0
+		model.alpha = 0.0
+		model.isHitTestable = true -- Only needed if alpha is 0
+		model:addEventListener("touch", function() return true end)
+		model:addEventListener("tap", function() return true end)
+		screenGroup:insert(model)
+	else
+		if model ~= nil then
+			model:removeSelf( )
+			model = nil
+		end
+	end
 
 end
 --------
@@ -226,15 +208,20 @@ end
 --------
 local function refreshScreen()
 
-	-- selectRecord()
-	-- lotsOfTextObject.text = gRecord.text
-	-- scrollView:scrollToPosition({x = 1,y = 0,time = 0})
-	
-	-- lotsOfTextObject:setReferencePoint( display.TopCenterReferencePoint )
-	-- lotsOfTextObject.x    = myCenterX
-	-- lotsOfTextObject.y    = 10
 
-	-- bannerText.text = gRecord.title
+	gCollector.card.y=myCenterY-(myHeight*.1)
+	gCollector.card.alpha = 0.0
+
+
+	selectRecord()
+	gCollector.cardText.text = gRecord.text
+	gCollector.text:scrollToPosition({x = 1,y = 0,time = 0})
+
+	transition.to( gCollector.card, { x= myCenterX,y=myCenterY-(myHeight*.07), time=400, delay=0,alpha=1.0,
+		transition=easing.outQuad})
+
+
+	gCollector.bannerText.text = gRecord.title
 
 end
 --------
@@ -247,87 +234,74 @@ end
 --------
 local function gowebsite(event)
 
-	-- if event.phase == "ended" then
-	-- 	system.openURL("www.evergreentherapies.com")
-	-- end
+
+	--if event.phase == "ended" then
+		system.openURL("www.evergreentherapies.com")
+	--end
 end
 --------
 local pressButton = function( event )
 
 	if event.target.id == "about" and event.phase == "ended" then
-	print(event.target.id)	
-
--- 		if popup ~= nil then
-
--- 			makeModel(0)
--- 			transition.to( popup, {time=300, delay=2, transition=easing.inQuad, onComplete = killPopup, alpha=0 })
-	
--- 		else
-
---		makeModel(1)
 
 		if gCollector.popup~= nil then
 			gCollector.popup:removeSelf( ) 
-		end
+			gCollector.popup = nil
+			makeModel(0)
+		else
 
-		gCollector[#gCollector+1] = {popup=nil}
-		gCollector.popup = display.newGroup()
+			makeModel(1)
+			-- create the card display group
+			gCollector[#gCollector+1] = {popup=nil}
+			gCollector.popup = display.newGroup()
 
-
+		  	-- popup graphic
 			local img   = display.newImageRect(gCollector.popup, "images/popup.png", 313, 302)
-			img:setReferencePoint( display.BottomLeftReferencePoint )
-			img.x = 156
-			img.y = myHeight-40
-			img.alpha = 1.0
+			img:setReferencePoint( display.TopLeftReferencePoint )
+			img.x, img.y, img.alpha = 0,0,1.0
 			gCollector.popup:insert(img)
+			screenGroup:insert(gCollector.popup)
+			
+			gCollector.popup:setReferencePoint( display.BottomCenterReferencePoint )
+			gCollector.popup.x, gCollector.popup.y, gCollector.popup.alpha = myCenterX, myHeight-40, 1.0 
 
+		 	-- popup text
 			local pText    = "Melissa Granchi is a Psychotherapist, Wellness \n Consultant, and Yoga Teacher. Utilizing her \ntraining in psychology, Yoga and nutrition, \nMelissa guides you in the integration of your \nbody, mind and soul. \n\nFor additional information please go to:"
 			local pTextObj = display.newText( gCollector.popup, pText, 0,  0, "Papyrus", 12 )
-
-			pTextObj:setReferencePoint(display.TopLeftReferencePoint)
+			pTextObj:setReferencePoint( display.TopLeftReferencePoint )
 			pTextObj.x     = 30
 			pTextObj.y     = 30
 			pTextObj:setTextColor(70, 70, 70)
 
 			gCollector.popup:insert(pTextObj)
 
--- -- look into stage:setFocus( object [,touchID] ) for touch issue
+			-- weblink text
+			gCollector[#gCollector+1] = {weblink=nil}
+			gCollector.weblink = display.newText( gCollector.popup, "www.evergreentherapies.com", 0,  0, "Papyrus", 12 )
+			gCollector.weblink:setReferencePoint(display.TopLeftReferencePoint)
+			gCollector.weblink.x, gCollector.weblink.y = 30, pTextObj.height+30
+			gCollector.weblink:setTextColor(196, 94, 51)
+			gCollector.weblink:addEventListener("touch", gowebsite)
+			gCollector.popup:insert(gCollector.weblink)
 
--- 			local h = pTextObj.height+30
--- 			weblink = display.newText( popup, "www.evergreentherapies.com", 0,  0, "Papyrus", 12 )
--- 			weblink:setReferencePoint(display.TopLeftReferencePoint)
--- 			weblink.x = 30
--- 			weblink.y = h 
--- 			weblink:setTextColor(196, 94, 51)
+			transition.from( gCollector.popup, {time=300, delay=2,transition=easing.inQuad,alpha=0 })
 
--- 			weblink:addEventListener("touch", gowebsite)
--- 			popup:insert(weblink)
-
--- 			popup:setReferencePoint( display.BottomCenterReferencePoint )
--- 			popup.x = myCenterX + 10
--- 			popup.y = myHeight - 30
-
--- 			transition.from( popup, { 
--- 		 	time=300, 
--- 		 	delay=2,
--- 		 	transition=easing.inQuad,
--- 		 	alpha=0 })
-
--- 		end
+ 		end
 
 	elseif event.target.id == "refresh" and event.phase == "ended" then
 
-print(event.target.id)
--- 	if popup ~= nil then
+		if gCollector.popup~= nil then
+			gCollector.popup:removeSelf( ) 
+			gCollector.popup = nil
+			makeModel(0)
+		else
 
--- 			makeModel(0)
--- 			transition.to( popup, {time=300, delay=2, transition=easing.inQuad, onComplete = killPopup, alpha=0 })
-	
--- 		end
 
--- 		gCollector.card.y=-20
--- 		gCollector.card.alpha = 0
--- 		refreshScreen()
+		end
+
+
+
+		refreshScreen()
 -- 	elseif event.target.id == "fb" and event.phase == "ended" then
 
 	end
@@ -420,11 +394,12 @@ local function constructCard()
 	gCollector.card.x, gCollector.card.y = myCenterX, myCenterY-(myHeight*.07)
 
 	-- insert the text that scrolls within the card
-	local pText = display.newText( gRecord.text, 0, 0, 200, 0, "Papyrus", 16)
-	pText:setTextColor(0,0,0) 
-	pText:setReferencePoint( display.TopLeftReferencePoint )
-	pText.x, pText.y = pText.width*.2, 0
-	gCollector.text:insert( pText )
+	gCollector[#gCollector+1] = {cardText=nil}
+	gCollector.cardText = display.newText( gRecord.text, 0, 0, 200, 0, "Papyrus", 16)
+	gCollector.cardText:setTextColor(0,0,0) 
+	gCollector.cardText:setReferencePoint( display.TopLeftReferencePoint )
+	gCollector.cardText.x, gCollector.cardText.y = gCollector.cardText.width*.2, 0
+	gCollector.text:insert( gCollector.cardText )
 	gCollector.card:insert( gCollector.text )
 
 	-- insert the mask that sits over the text within the card
@@ -458,8 +433,6 @@ local function constructBanner()
 	gCollector.bannerText.x,gCollector.bannerText.y = gCollector.banner.width*.5, gCollector.banner.height*.44
 
 	gCollector.banner:insert(gCollector.bannerText)
-
-
 
 end
 --------
