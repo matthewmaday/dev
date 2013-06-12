@@ -175,10 +175,11 @@ end
 local function makeModel(pState)
 
 	if pState == 1 then
-		model = display.newRect(0, 0, myCenterX+(gCollector.card.width*.5), myHeight-40)
+		model = display.newRect(0, 0, myWidth, myHeight-40)
 		model:setReferencePoint(display.TopLeftReferencePoint)
+		model:setFillColor(0, 0, 0)
 		model.x = 0
-		model.alpha = 0.0
+		model.alpha = 0.7
 		model.isHitTestable = true -- Only needed if alpha is 0
 		model:addEventListener("touch", function() return true end)
 		model:addEventListener("tap", function() return true end)
@@ -220,26 +221,21 @@ local function refreshScreen()
 	selectRecord()
 	gCollector.cardText.text = gRecord.text
 	gCollector.text:scrollToPosition({x = 1,y = 0,time = 0})
-
+	gCollector.cardText:setReferencePoint( display.TopLeftReferencePoint )
+	gCollector.cardText.x, gCollector.cardText.y = gCollector.cardText.width*.2, 0
+	
 	transition.to( gCollector.card, { x=locX,y=locY, time=400, delay=0,alpha=1.0,transition=easing.outQuad})
 	
 	gCollector.bannerText.text = gRecord.title
 
-end
---------
-local function killPopup()
-
-	-- popup:removeSelf( )
-	-- popup = nil
 
 end
 --------
 local function gowebsite(event)
 
-
-	--if event.phase == "ended" then
+	if event.phase == "ended" then
 		system.openURL("www.evergreentherapies.com")
-	--end
+	end
 end
 --------
 local pressButton = function( event )
@@ -258,30 +254,31 @@ local pressButton = function( event )
 			gCollector.popup = display.newGroup()
 
 		  	-- popup graphic
-			local img   = display.newImageRect(gCollector.popup, "images/popup.png", 313, 302)
+			local img   = display.newImageRect(gCollector.popup, "images/popup.png", 299, 191)
 			img:setReferencePoint( display.TopLeftReferencePoint )
 			img.x, img.y, img.alpha = 0,0,1.0
 			gCollector.popup:insert(img)
 			screenGroup:insert(gCollector.popup)
 			
 			gCollector.popup:setReferencePoint( display.BottomCenterReferencePoint )
-			gCollector.popup.x, gCollector.popup.y, gCollector.popup.alpha = myCenterX, myHeight-40, 1.0 
+			gCollector.popup.x, gCollector.popup.y, gCollector.popup.alpha = myCenterX, myCenterY+(img.height*.5), 1.0 
 
 		 	-- popup text
-			local pText    = "Melissa Granchi is a Psychotherapist, Wellness \n Consultant, and Yoga Teacher. Utilizing her \ntraining in psychology, Yoga and nutrition, \nMelissa guides you in the integration of your \nbody, mind and soul. \n\nFor additional information please go to:"
-			local pTextObj = display.newText( gCollector.popup, pText, 0,  0, "Papyrus", 12 )
+		 	local pFile    = fileio.new(system.pathForFile( "data/bio.txt", system.pathForFile()))
+			local pText    = readDataFile(pFile)
+			local pTextObj = display.newText( gCollector.popup, pText.bio, 0,  0, "Papyrus", 12 )
 			pTextObj:setReferencePoint( display.TopLeftReferencePoint )
 			pTextObj.x     = 30
-			pTextObj.y     = 30
+			pTextObj.y     = 15
 			pTextObj:setTextColor(70, 70, 70)
 
 			gCollector.popup:insert(pTextObj)
 
 			-- weblink text
 			gCollector[#gCollector+1] = {weblink=nil}
-			gCollector.weblink = display.newText( gCollector.popup, "www.evergreentherapies.com", 0,  0, "Papyrus", 12 )
+			gCollector.weblink = display.newText( gCollector.popup, pText.website, 0,  0, "Papyrus", 12 )
 			gCollector.weblink:setReferencePoint(display.TopLeftReferencePoint)
-			gCollector.weblink.x, gCollector.weblink.y = 30, pTextObj.height+30
+			gCollector.weblink.x, gCollector.weblink.y = 30, pTextObj.height+17
 			gCollector.weblink:setTextColor(196, 94, 51)
 			gCollector.weblink:addEventListener("touch", gowebsite)
 			gCollector.popup:insert(gCollector.weblink)
@@ -320,13 +317,8 @@ local function loadButtons()
 
 	local totalCombinedWidth = 321
 	local offset = (rectWidth-totalCombinedWidth)*.5
-
--- create the card display group
 	gCollector[#gCollector+1] = {buttons=nil}
 	gCollector.buttons = display.newGroup()
-	-- gCollector.buttons.width = myWidth
-	-- gCollector.buttons.height = 40
-	-- gCollector.buttons:setReferencePoint( display.CenterReferencePoint )
 	
 
 	local img   = display.newRect(0,0,rectWidth,40)

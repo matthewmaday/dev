@@ -78,6 +78,8 @@ function constructScene()
 
 	myCenterX, myCenterY = myWidth*.5, myHeight*.5
 
+
+
 	-- background rect that fades in
 	local img = display.newRect(screenGroup, 0,0,myWidth*2,myCenterY)
 	img:setReferencePoint( display.TopLeftReferencePoint )
