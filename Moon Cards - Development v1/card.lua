@@ -11,7 +11,7 @@
 	local fileio     = require ("classes.fileio")
 	local strObj     = require ("classes.str")
 	local uiObj      = require ("classes.ui")
---local easyfb = require ("classes.easyfb")   -- NEEDED LATRE FOR FACEBOOK INTEGRATION
+	local easyfb 	 = require ("classes.easyfb")   
 	local json       = require "json"
 	local widget     = require( "widget" )
 	local easingx    = require("classes.easing")  -- cool library i found- important easing"x"
@@ -269,7 +269,7 @@ local pressButton = function( event )
 			local pTextObj = display.newText( gCollector.popup, pText.bio, 0,  0, "Papyrus", 12 )
 			pTextObj:setReferencePoint( display.TopLeftReferencePoint )
 			pTextObj.x     = 30
-			pTextObj.y     = 15
+			pTextObj.y     = 20
 			pTextObj:setTextColor(70, 70, 70)
 
 			gCollector.popup:insert(pTextObj)

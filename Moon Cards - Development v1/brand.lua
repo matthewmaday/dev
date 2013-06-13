@@ -47,9 +47,17 @@ local function onOrientationChange( event )
 	
 end
 --------
+local function timeout( event )
+	timer.cancel( gTimer )
+	gTimer = nil
+    storyboard.gotoScene( "start", "fade", 400 )
+end
+
+
+
 local function touchScreen(event)
 	if event.phase == "began" then
-		storyboard.gotoScene( "start", "fade", 400 )
+		timeout( event )
 	elseif event.phase == "ended" then
 	end
 end
@@ -207,6 +215,7 @@ end
 -- scene execution
 --------------------------------------------------------------------------------------
 
+gTimer = timer.performWithDelay( 8000, timeout, 1 )
 Runtime:addEventListener( "orientation", onOrientationChange )
 scene:addEventListener("createScene", scene)
 scene:addEventListener("enterScene", scene)
