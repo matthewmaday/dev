@@ -221,6 +221,24 @@ end
 --------
 function scene:exitScene(event)
 	
+
+
+
+
+
+
+-- print(#gCollector)
+local pEnd = #gCollector
+
+for i=1,pEnd,1 do
+	print(i)
+	print(gCollector[i])
+	gCollector[i] = nil
+end
+
+	-- 	gCollector.burst:removeSelf( )
+	-- gCollector.burst = nil
+
 	-- remove listener events
 	Runtime:removeEventListener("touch",touchScreen)
 	Runtime:removeEventListener("enterFrame", gCollector.burst)
@@ -232,9 +250,8 @@ function scene:exitScene(event)
 
 	-- clean up globals
 
-	-- gCollector.burst:removeSelf( )
-	--gCollector.burst = nil
-	--spawnTable:removeSelf( )
+
+
 	screenGroup:removeSelf()
 	screenGroup, spawnTable = nil, nil
 

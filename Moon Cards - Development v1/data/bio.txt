@@ -1,4 +1,4 @@
 {
-    "bio":"Melissa Granchi is a Psychotherapist, Wellness \n Consultant, and Yoga Teacher. Utilizing her \ntraining in psychology, Yoga and nutrition, \nMelissa guides you in the integration of your \nbody, mind and soul. \n\nFor additional information please go to:",
+    "bio":"Melissa Granchi is a Psychotherapist, Wellness Consultant, and Yoga Teacher. Utilizing her training in psychology, Yoga and nutrition, Melissa guides you in the integration of your body, mind and soul. For additional information please go to:",
     "website": "www.evergreentherapies.com"
 }

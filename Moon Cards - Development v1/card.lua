@@ -11,7 +11,7 @@
 	local fileio     = require ("classes.fileio")
 	local strObj     = require ("classes.str")
 	local uiObj      = require ("classes.ui")
-	local easyfb 	 = require ("classes.easyfb")   
+	-- local easyfb 	 = require ("classes.easyfb")   
 	local json       = require "json"
 	local widget     = require( "widget" )
 	local easingx    = require("classes.easing")  -- cool library i found- important easing"x"
@@ -268,7 +268,7 @@ local pressButton = function( event )
 		 	-- popup text
 		 	local pFile    = fileio.new(system.pathForFile( "data/bio.txt", system.pathForFile()))
 			local pText    = readDataFile(pFile)
-			local pTextObj = display.newText( gCollector.popup, pText.bio, 0,  0, "Papyrus", 12 )
+			local pTextObj = display.newText( gCollector.popup, pText.bio, 0,  0, 240,200,"Papyrus", 10 )
 			pTextObj:setReferencePoint( display.TopLeftReferencePoint )
 			pTextObj.x     = 30
 			pTextObj.y     = 20
@@ -280,7 +280,7 @@ local pressButton = function( event )
 			gCollector[#gCollector+1] = {weblink=nil}
 			gCollector.weblink = display.newText( gCollector.popup, pText.website, 0,  0, "Papyrus", 12 )
 			gCollector.weblink:setReferencePoint(display.TopLeftReferencePoint)
-			gCollector.weblink.x, gCollector.weblink.y = 30, pTextObj.height+17
+			gCollector.weblink.x, gCollector.weblink.y = 30, img.height-50
 			gCollector.weblink:setTextColor(196, 94, 51)
 			gCollector.weblink:addEventListener("touch", gowebsite)
 			gCollector.popup:insert(gCollector.weblink)

@@ -2,7 +2,7 @@ module (..., package.seeall)
 
 -- external modules ( remember to put json.lua in the same folder as this file )
 local json = require( "json" )
-local facebook 	= require( "facebook" )
+-- local facebook 	= require( "facebook" )
 
 -- facebook setup
 local appId = "162620770581111"
