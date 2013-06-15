@@ -152,25 +152,7 @@ local function selectRecord()
 	gPrefsObj:writeFile(json.encode( gPrefs ))
 
 end
---------
-local function initScroll()
 
-	gCollector[#gCollector+1] = {text=nil}
-	gCollector.text = widget.newScrollView
-	{
-		left           = 0,
-		top            = 100,   -- myHeight*.18,
-		width          = 280, 
-		height         = 300,   -- controls the where the text considers 'bottom'
-		bottomPadding  = 140,
-		hideBackground = true,
-		id             = "onBottom",
-		horizontalScrollDisabled = true,
-		verticalScrollDisabled = false,
-		listener = scrollListener,
-	}
-
-end
 --------
 local function makeModel(pState)
 
@@ -193,17 +175,41 @@ local function makeModel(pState)
 
 end
 --------
-local function updateUI()
+local function constructCardText()
 
-	-- if gCollector.card.y < 0 then
+	-- insert the text that scrolls within the card
+	if gCollector.cardText ~= nil then
+		gCollector.cardText:removeSelf( )
+		gCollector.cardText = nil
+	else
+		gCollector[#gCollector+1] = {cardText=nil}
+	end
 
-	-- transition.to( gCollector.card, { x=gCollector.card.x, 
-	-- 	 y=myCenterY-(myHeight*.47), 
-	-- 	 time=300, 
-	-- 	 delay=2,
-	-- 	 transition=easing.outQuad , 
-	-- 	 alpha=1.0 })
-	-- end
+	selectRecord()
+
+	gCollector.cardText = display.newText( gRecord.text, 0, 0, 200, 0, "Papyrus", 16)
+	gCollector.cardText:setTextColor(0,0,0) 
+	gCollector.cardText:setReferencePoint( display.TopLeftReferencePoint )
+	gCollector.cardText.x, gCollector.cardText.y = gCollector.cardText.width*.2, 0
+	
+	if gCollector.text ~= nil then
+		gCollector.text:removeSelf( )
+		gCollector.text = nil
+	end
+
+	gCollector[#gCollector+1] = {text=nil}
+	gCollector.text = widget.newScrollView
+	{left=0,top=0,width=280,height=277,scrollWidth=400,scrollHeight=277,bottomPadding=0,hideBackground=true,id="onBottom",
+		horizontalScrollDisabled = true,verticalScrollDisabled = false,listener = scrollListener,}
+
+	gCollector.text:insert( gCollector.cardText )
+	gCollector.card:insert( gCollector.text )
+	gCollector.text.x, gCollector.text.y = 0,100
+
+	-- insert the mask that sits over the text within the card
+	local mask = graphics.newMask( "images/mask.png" )
+	gCollector.text:setMask( mask )
+	gCollector.text.maskX,gCollector.text.maskY = gCollector.cardBkg.width*.5,gCollector.cardBkg.height*.26
 
 end
 --------
@@ -218,11 +224,7 @@ local function refreshScreen()
 	gCollector.card.y= locY-30
 	gCollector.card.alpha = 0.0
 
-	selectRecord()
-	gCollector.cardText.text = gRecord.text
-	gCollector.text:scrollToPosition({x = 1,y = 0,time = 0})
-	gCollector.cardText:setReferencePoint( display.TopLeftReferencePoint )
-	gCollector.cardText.x, gCollector.cardText.y = gCollector.cardText.width*.2, 0
+	constructCardText()
 	
 	transition.to( gCollector.card, { x=locX,y=locY, time=400, delay=0,alpha=1.0,transition=easing.outQuad})
 	
@@ -372,6 +374,8 @@ local function loadButtons()
 -----------------------------------------------------------------------------------------
 -- storyboard Functions 
 -----------------------------------------------------------------------------------------
+
+
 local function constructCard()
 
 	-- create the card display group
@@ -379,28 +383,17 @@ local function constructCard()
 	gCollector.card = display.newGroup()
 
   	-- Insert the card background
-	local bkg    = display.newImageRect(gCollector.card, "images/card_card.png", 320, 428)
-	bkg:setReferencePoint( display.TopLeftReferencePoint )
-	bkg.x, bkg.y, bkg.alpha = 0,0,100
-	gCollector.card:insert( bkg )
+  	gCollector[#gCollector+1] = {cardBkg=nil}
+	gCollector.cardBkg = display.newImageRect(gCollector.card, "images/card_card.png", 320, 428)
+
+	gCollector.cardBkg:setReferencePoint( display.TopLeftReferencePoint )
+	gCollector.cardBkg.x, gCollector.cardBkg.y, gCollector.cardBkg.alpha = 0,0,100
+	gCollector.card:insert( gCollector.cardBkg )
 	screenGroup:insert(gCollector.card)
 	gCollector.card:setReferencePoint( display.CenterReferencePoint )
 	gCollector.card.x, gCollector.card.y = myCenterX, myCenterY-(myHeight*.07)
 
-	-- insert the text that scrolls within the card
-	gCollector[#gCollector+1] = {cardText=nil}
-	gCollector.cardText = display.newText( gRecord.text, 0, 0, 200, 0, "Papyrus", 16)
-	gCollector.cardText:setTextColor(0,0,0) 
-	gCollector.cardText:setReferencePoint( display.TopLeftReferencePoint )
-	gCollector.cardText.x, gCollector.cardText.y = gCollector.cardText.width*.2, 0
-	gCollector.text:insert( gCollector.cardText )
-	gCollector.card:insert( gCollector.text )
-
-	-- insert the mask that sits over the text within the card
-	local mask = graphics.newMask( "images/mask.png" )
-	gCollector.text:setMask( mask )
-	gCollector.text.maskX = bkg.width*.5
-	gCollector.text.maskY = bkg.height*.26
+	constructCardText()
 
 end
 --------
@@ -411,7 +404,8 @@ local function constructBanner()
 	gCollector.banner = display.newGroup()
 
   	-- Insert the banner background
-	local bkg    = display.newImageRect(gCollector.banner, "images/card_banner.png", 340, 82)
+ local bkg = display.newImageRect(gCollector.banner, "images/card_banner.png", 340, 82)
+
 	bkg:setReferencePoint( display.TopLeftReferencePoint )
 	bkg.x, bkg.y, bkg.alpha = 0,0,1.0
 	gCollector.banner:insert( bkg )
@@ -524,9 +518,7 @@ end
 
 
 initExternalData()
-initScroll()
 selectRecord()
-	-- initScreen()
 loadButtons()
 
 Runtime:addEventListener( "orientation", onOrientationChange )
@@ -534,8 +526,6 @@ scene:addEventListener("createScene", scene)
 scene:addEventListener("enterScene", scene)
 scene:addEventListener("exitScene", scene)
 scene:addEventListener("destroyScene", scene)
-
-Runtime:addEventListener("enterFrame",updateUI)
 
 return scene
 
