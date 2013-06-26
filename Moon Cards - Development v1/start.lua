@@ -170,7 +170,7 @@ end
 --------
 function touchScreen(event)
 	if event.phase == "began" then
-		storyboard.gotoScene( "card", "fade", 400 )
+		storyboard.gotoScene( "brand", "fade", 400 )
 	elseif event.phase == "ended" then
 	end
 end
@@ -186,6 +186,8 @@ end
 
 
 function scene:createScene(event)
+
+	local gCollector          = {}
 
 	if myWidth > myHeight then
 		myHeight = myWidth
@@ -210,12 +212,18 @@ end
 --------
 function scene:enterScene(event)
 
+
 	Runtime:addEventListener("enterFrame",rotate)
 	Runtime:addEventListener("touch",touchScreen)
+	Runtime:addEventListener( "orientation", onOrientationChange )
+
 	screenGroup:setReferencePoint( display.TopLeftReferencePoint )
 	screenGroup.x,screenGroup.y = (display.contentWidth-myWidth)*.5,(display.contentHeight-myHeight)*.5
 
 	constructScene()
+
+	print("MEMORY USED IN SCENE START---------------------------------------------------------")
+	print(system.getInfo("textureMemoryUsed")/1024)
 
 end
 --------
@@ -225,51 +233,30 @@ function scene:exitScene(event)
 
 
 
-
-
--- print(#gCollector)
-local pEnd = #gCollector
-
-for i=1,pEnd,1 do
-	print(i)
-	print(gCollector[i])
-	gCollector[i] = nil
-end
-
-	-- 	gCollector.burst:removeSelf( )
-	-- gCollector.burst = nil
-
 	-- remove listener events
 	Runtime:removeEventListener("touch",touchScreen)
 	Runtime:removeEventListener("enterFrame", gCollector.burst)
-	scene:removeEventListener("createScene", scene)
-	scene:removeEventListener("enterScene", scene)
-	scene:removeEventListener("exitScene", scene)
-	scene:removeEventListener("destroyScene", scene)
 	Runtime:removeEventListener( "orientation", onOrientationChange )
+	Runtime:removeEventListener("enterFrame", gCollector.burst)
 
 	-- clean up globals
-
-
-
-	screenGroup:removeSelf()
 	screenGroup, spawnTable = nil, nil
+	gCollector.burst = nil
 
+	gCollector = {}
 end
---------
-function scene:destroyScene(event)
 
-end
 
 --------------------------------------------------------------------------------------
 -- scene execution
 --------------------------------------------------------------------------------------
+	
 
-Runtime:addEventListener( "orientation", onOrientationChange )
 scene:addEventListener("createScene", scene)
 scene:addEventListener("enterScene", scene)
 scene:addEventListener("exitScene", scene)
-scene:addEventListener("destroyScene", scene)
+
+
 
 return scene
 

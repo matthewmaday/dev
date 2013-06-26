@@ -504,11 +504,7 @@ end
 function scene:exitScene(event)
 
 	Runtime:removeEventListener("touch",touchScreen)
-end
---------
-function scene:destroyScene(event)
-
-	Runtime:removeEventListener("touch",touchScreen)
+	Runtime:removeEventListener( "orientation", onOrientationChange )
 
 end
 
@@ -525,7 +521,7 @@ Runtime:addEventListener( "orientation", onOrientationChange )
 scene:addEventListener("createScene", scene)
 scene:addEventListener("enterScene", scene)
 scene:addEventListener("exitScene", scene)
-scene:addEventListener("destroyScene", scene)
+
 
 return scene
 

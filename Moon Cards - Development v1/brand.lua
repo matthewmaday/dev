@@ -9,8 +9,8 @@
 --------------------------------------------------------------------------------------
 
 local storyboard = require ("storyboard")
-local scene      = storyboard.newScene()
-local uiObj      = require ("classes.ui")
+local scene    = storyboard.newScene()
+local uiObj    = require ("classes.ui")
 
 --------------------------------------------------------------------------------------
 -- local variable declaritions
@@ -18,9 +18,9 @@ local uiObj      = require ("classes.ui")
 
 local screenGroup          = nil				-- the group that holds all of the graphics
 local gCollector           = {}                 -- the array of all graphics used
-local gStar                = {150,nil,2}
+local gStar              = {150,nil,2}
 local gTimer               = nil
-local myHeight, myWidth    = display.contentHeight, display.contentWidth
+local myHeight, myWidth  = display.contentHeight, display.contentWidth
 local myCenterX, myCenterY =  myWidth*.5, myHeight*.5
 --------------------------------------------------------------------------------------
 -- functions
@@ -48,7 +48,6 @@ end
 --------
 local function timeout( event )
 	timer.cancel( gTimer )
-	gTimer = nil
     storyboard.gotoScene( "start", "fade", 400 )
 end
 
@@ -142,7 +141,9 @@ end
 
 function scene:createScene(event)
 
-print ("CREATE SCENE!!!")
+	gCollector          = {}
+	gTimer = timer.performWithDelay( 8000, timeout, 1 )
+
 	if myWidth > myHeight then
 		myHeight = myWidth
 	elseif myHeight > myWidth then
@@ -166,40 +167,35 @@ end
 --------
 function scene:enterScene(event)
 
+
 	Runtime:addEventListener("touch",touchScreen)
 	screenGroup:setReferencePoint( display.TopLeftReferencePoint )
+	
+	Runtime:addEventListener( "orientation", onOrientationChange )
+
 	screenGroup.x,screenGroup.y = (display.contentWidth-myWidth)*.5,0
 
 	constructScene()
 
+	print("MEMORY USED IN SCENE BRAND---------------------------------------------------------")
+	print(system.getInfo("textureMemoryUsed")/1000)
 end
 --------
 function scene:exitScene(event)
 	
-	print(#gCollector)
-	gCollector.star:removeSelf()
-	gCollector.background:removeSelf()
-	gCollector.burst:removeSelf()
-	gCollector.logo:removeSelf()
-	gCollector.title:removeSelf()
-
 	gCollector.background = nil
 	gCollector.star = nil
 	gCollector.burst = nil
 	gCollector.logo = nil
 	gCollector.title = nil
 	gStar = nil
-gCollector = nil
+	gCollector = {}
 
 	-- remove listener events
 	Runtime:removeEventListener("touch",touchScreen)
-	scene:removeEventListener("createScene", scene)
-	scene:removeEventListener("enterScene", scene)
-	scene:removeEventListener("exitScene", scene)
-	scene:removeEventListener("destroyScene", scene)
 	Runtime:removeEventListener( "orientation", onOrientationChange )
 	Runtime:removeEventListener("enterFrame", rotateStar)
-
+	
 
 	-- screenGroup:removeSelf()
 	screenGroup = nil
@@ -212,24 +208,16 @@ gCollector = nil
 	
 
 end
---------
-function scene:destroyScene(event)
-
-	
-end
 
 --------------------------------------------------------------------------------------
 -- scene execution
----------------------------------------
-print("CREATE SCENE!!!")
------------------------------------------------
+--------------------------------------------------------------------------------------
 
-gTimer = timer.performWithDelay( 8000, timeout, 1 )
-Runtime:addEventListener( "orientation", onOrientationChange )
+
 scene:addEventListener("createScene", scene)
 scene:addEventListener("enterScene", scene)
 scene:addEventListener("exitScene", scene)
-scene:addEventListener("destroyScene", scene)
+
 
 return scene
 
