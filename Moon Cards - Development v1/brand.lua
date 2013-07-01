@@ -36,12 +36,12 @@ local function onOrientationChange( event )
  	local delta = event.delta
 
 	if screenGroup.rotation == 0 and delta < 0 then
-		local newAngle = delta-screenGroup.rotation
+		local newAngle = delta-screen.rotation
 	else
-		local newAngle = delta-screenGroup.rotation
+		local newAngle = delta-screen.rotation
 	end
 
-	transition.to( screenGroup, { x=(display.contentWidth-myWidth)*.5,y=0, 
+	transition.to( screen, { x=(display.contentWidth-myWidth)*.5,y=0, 
 	time=400, delay=0,alpha=1.0,transition=easing.outQuad,rotation=newAngle})
 	
 end

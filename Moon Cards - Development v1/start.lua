@@ -91,7 +91,7 @@ local function constructScene()
 
 	-- background
 	local img = display.newRect(screenGroup, 0,myCenterY,myWidth*1.5,myHeight*1.5)
-	img:setReferencePoint( display.TopLeftReferencePoint )
+	img:setReferencePoint( display.CenterReferencePoint )
 	img.x,img.y     = 0,myCenterY
 	img:setFillColor(32,98,117)
 
