@@ -43,7 +43,7 @@ local function alignContent()
 	transition.to( screenGroup, { x=(display.contentWidth-myWidth)*.5,y=(display.contentHeight-myHeight)*.5, 
 	time=400, delay=0,transition=easing.outQuad})
 
-
+	
 	if system.orientation == "portrait" or system.orientation == "portraitUpsideDown" then
 		
 		transition.to( gCollector.title, { y=display.contentHeight*.1, time=400, delay=0,
