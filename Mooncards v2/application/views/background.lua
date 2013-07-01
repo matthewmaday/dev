@@ -1,4 +1,9 @@
--- General Title Class
+-- General Screen Background View
+
+-- Moon cards version 2
+-- Development by Matthew Maday
+-- DBA - Weekend Warrior Collective
+-- a 100% not-for-profit developer collective
 
 LoadBackground = {}
 
@@ -65,7 +70,7 @@ function LoadBackground:new(params)
 
 		-- burst animation
 		self.images[#self.images+1] = {burst=nil}
-		self.images.burst = display.newImageRect("content/images/home_burst.png", 600, 600) 
+		self.images.burst = display.newImageRect("content/images/home_burst.png", 800, 800) 
 		self.images.burst.x, self.images.burst.y, self.images.burst.alpha = self.centerX, self.centerY, 1
 		self.images.burst:setReferencePoint(display.CenterReferencePoint)
 		screen:insert(self.images.burst)
@@ -154,24 +159,6 @@ function LoadBackground:new(params)
 	transition.to( screen, { x=(display.contentWidth-self.myWidth)*.5,y=(display.contentHeight-self.myHeight)*.5, 
 	time=400, delay=0,transition=easing.outQuad})
 
-
-	-- if system.orientation == "portrait" or system.orientation == "portraitUpsideDown" then
-		
-	-- 	transition.to( self.images.title, { y=display.contentHeight*.1, time=400, delay=0,
-	-- 	transition=easing.outQuad})
-
-	-- 	transition.to( self.images.continue, { y=display.contentHeight*.9, time=400, delay=0,
-	-- 	transition=easing.outQuad})
-
-	-- else
-
-	-- 	transition.to( self.images.title, { y=display.contentHeight*.3, time=400, delay=0,
-	-- 	transition=easing.outQuad})
-
-	-- 	transition.to( self.images.continue, { y=display.contentHeight*1.05, time=400, delay=0,
-	-- 	transition=easing.outQuad})
-
-	-- end
 
 end
 	--------

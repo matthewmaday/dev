@@ -1,4 +1,9 @@
--- General Branding Class
+-- General Branding View
+
+-- Moon cards version 2
+-- Development by Matthew Maday
+-- DBA - Weekend Warrior Collective
+-- a 100% not-for-profit developer collective
 
 LoadBrand = {}
 

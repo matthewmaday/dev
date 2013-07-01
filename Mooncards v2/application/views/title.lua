@@ -1,4 +1,9 @@
--- General Title Class
+-- General Title View
+
+-- Moon cards version 2
+-- Development by Matthew Maday
+-- DBA - Weekend Warrior Collective
+-- a 100% not-for-profit developer collective
 
 LoadTitle = {}
 
@@ -50,10 +55,12 @@ function LoadTitle:new(params)
 		self.starDegree   = 150
 
 		if self.myWidth > self.myHeight then
-			self.myHeight = self.myWidth
-		elseif self.myHeight > self.myWidth then
-			self.myWidth = self.myHeight
+			local tmp     = self.myWidth
+			self.myWidth  = self.myHeight
+			self.myHeight = tmp
 		end
+
+		print("width and height",self.myWidth,self.myHeight)
 
 		self.centerX, self.centerY = self.myWidth*.5, self.myHeight*.5
 
@@ -61,7 +68,7 @@ function LoadTitle:new(params)
 		self.images[#self.images+1] = {sun=nil}
 		self.images.sun = display.newImageRect("content/images/home_sunmoon.png", 104, 107) 
 		self.images.sun.x, self.images.sun.y, self.images.sun.alpha = self.centerX, self.centerY, 0
-		self.images.sun:setReferencePoint(display.BottomCenterReferencePoint)
+		self.images.sun:setReferencePoint(display.CenterReferencePoint)
 		screen:insert(self.images.sun)
 
 		transition.to( self.images.sun, { time=2000, delay=100, alpha=1.0} )
@@ -84,11 +91,11 @@ function LoadTitle:new(params)
 
 		transition.to( self.images.continue, { time=2000, delay=0, alpha=1.0} )
 
+		-- reset the position in case the screen starts off as a landscape view
+		transition.to( screen, { x=(display.contentWidth-screen.myWidth)*.5,y=0, time=400, delay=0,alpha=1.0,transition=easing.outQuad})
 		screen:alignContent()
 
-
 		self.timer = timer.performWithDelay( 200, screen.addStar )
-
 		self.state = "idle"
 	end
 	--------
@@ -231,16 +238,15 @@ function LoadTitle:new(params)
 	--------
 	function screen:alignContent()
 
-	transition.to( screen, { x=(display.contentWidth-self.myWidth)*.5,y=(display.contentHeight-self.myHeight)*.5, 
-	time=400, delay=0,transition=easing.outQuad})
-
-	if system.orientation == "portrait" or system.orientation == "portraitUpsideDown" then
-		transition.to( self.images.title, { y=display.contentHeight*.1, time=400, delay=0,transition=easing.outQuad})
-		transition.to( self.images.continue, { y=display.contentHeight*.9, time=400, delay=0,transition=easing.outQuad})
-	else
-		transition.to( self.images.title, { y=display.contentHeight*.3, time=400, delay=0,transition=easing.outQuad})
-		transition.to( self.images.continue, { y=display.contentHeight*1.05, time=400, delay=0,transition=easing.outQuad})
-	end
+		if system.orientation == "portrait" or system.orientation == "portraitUpsideDown" then
+			transition.to( self.images.title, { y=30, time=400, delay=0,transition=easing.outQuad})
+			transition.to( self.images.continue, { y=self.myHeight-30, time=400, delay=0,transition=easing.outQuad})
+			transition.to( self.images.sun, { y=self.centerY,  time=400, delay=0,transition=easing.outQuad})
+		else
+			transition.to( self.images.title, { y=30, time=400, delay=0,transition=easing.outQuad})
+			transition.to( self.images.continue, { y=display.contentHeight-30, time=400, delay=0,transition=easing.outQuad})
+			transition.to( self.images.sun, { y=self.centerX,  time=400, delay=0,transition=easing.outQuad})
+		end
 
 end
 	--------

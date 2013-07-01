@@ -39,49 +39,56 @@ end
 function selectRecord()
 
 	print("gPrefs = ",gPrefs)
-	-- if #gPrefs.status.remaining == 0 then
+	
+	if #gPrefs.status.remaining == 0 then
 
-	-- 	gPrefs.status.remaining = {}
-	-- 	for i=1,#gPrefs.status.total,1 do
-	-- 		gPrefs.status.remaining[#gPrefs.status.remaining+1] = gPrefs.status.total[i]
-	-- 	end
+		gPrefs.status.remaining = {}
+		for i=1,#gPrefs.status.total,1 do
+			gPrefs.status.remaining[#gPrefs.status.remaining+1] = gPrefs.status.total[i]
+		end
 
-	-- end
+	end
 		
-	-- local recordNum = math.random(#gPrefs.status.remaining)
-	-- gRecord = gScreenText[gPrefs.status.remaining[recordNum]]
+	local recordNum = math.random(#gPrefs.status.remaining)
+	gRecord = gScreenText[gPrefs.status.remaining[recordNum]]
 
-	-- table.remove(gPrefs.status.remaining,recordNum)
+	table.remove(gPrefs.status.remaining,recordNum)
+	pPrefs  = fileio.new(system.pathForFile( "prefs.txt", system.DocumentsDirectory))
+	pPrefs:writeFile(json.encode( gPrefs ))
+	pPrefs = nil
+
 	-- gPrefsObj:writeFile(json.encode( gPrefs ))
 
 end
 --------
 function initExternalData()
+	
+	-- load the messages for the card
+	local pFile = fileio.new(system.pathForFile( "data/data.txt", system.ResourceDirectory))
+	local str   = pFile:readFile()
+	gScreenText = json.decode( str)
 
-
-	local pFile  = fileio.new(system.pathForFile( "data/data.txt", system.ResourceDirectory))
-	local str = pFile:readFile()
-	gScreenText  =  json.decode( str)
-
+	-- load the preferences file with information about sequence
 	local pPrefs  = fileio.new(system.pathForFile( "prefs.txt", system.DocumentsDirectory))
 	local str     = pPrefs:readFile()
-	print("THE str = ",str)
 
+	-- the initial prefs doc was not created in the tmp directory on the device, create it now
 	if str == "" then
 
 		print("need to create a file for prefs")
 		pPrefs = nil
 		local pTmpPrefs = fileio.new(system.pathForFile( "data/prefs.txt", system.ResourceDirectory))
 		str       = pTmpPrefs:readFile()
-		print("THE str = ",str)
 		pTmpPrefs = nil
-		gPrefs =  json.decode( str)
+		gPrefs =  json.decode(str)
 
 		pPrefs  = fileio.new(system.pathForFile( "prefs.txt", system.DocumentsDirectory))
-		print("pPrefs = ",pPrefs)
 		pPrefs:writeFile(str)
+		pPrefs = nil
 
-	 end
+	else
+		gPrefs =  json.decode(str)
+	end
 
 	selectRecord()
 
@@ -163,6 +170,18 @@ local function loadCard(scene)
 	
 end
 --------
+local function loadButtons(scene)
+
+
+	print("adding button panel")
+	require "application.views.buttonPanel"
+
+	gComponents.support[3] = LoadButtons:new(nil)
+	gComponents.support[3]:activate()
+	gComponents.support[3]:show()
+	
+end
+--------
 function goToScene(scene)
 
 
@@ -184,6 +203,7 @@ function goToScene(scene)
 		loadTitle()
 	elseif scene == 3 then
 		loadCard()
+		loadButtons()
 	end
 
 end
